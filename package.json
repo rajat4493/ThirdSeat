@@ -1,0 +1,22 @@
+{
+  "name": "thirdseat",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A live-conversation presence that detects meaningful gaps and helps close them while the conversation is still happening.",
+  "type": "module",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "start": "node src/server/main.ts",
+    "test": "node --test --test-reporter=spec 'tests/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "scenario": "node scripts/run-scenario.ts",
+    "e2e:real": "node scripts/e2e-real-research.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "typescript": "^5.9.0"
+  }
+}

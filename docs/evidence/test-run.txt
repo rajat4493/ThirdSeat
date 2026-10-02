@@ -1,0 +1,43 @@
+
+> thirdseat@0.1.0 test
+> node --test --test-reporter=spec 'tests/**/*.test.ts'
+
+✔ question kinds (4.430189ms)
+✔ embedded uncertain question ("not sure whether …") is a question with built-in uncertainty (0.323648ms)
+✔ response classification (0.377484ms)
+✔ named entities drive "externally researchable" (2.220248ms)
+✔ internal questions are not sent to public research (1.94651ms)
+✔ pronoun-only question is interpreted with the previous utterance as context (0.636381ms)
+✔ maps output, validates ids, sends compact state not full transcript (2.088681ms)
+✔ engine runs end-to-end on LLM signals and falls back to heuristics on LLM failure (17.106382ms)
+✔ drops low-priority and stale candidates; surfaces highest first; respects cooldown (2.86632ms)
+✔ active-card cap holds normal items; urgent items bypass cap and cooldown (0.359745ms)
+✔ withdraw removes a pending candidate (natural resolution) (0.359197ms)
+✔ source tiers are configurable rules over hosts and paths (0.971339ms)
+✔ confidence is capped by evidence quality (0.174307ms)
+✔ extractive synthesizer never claims more than UNVERIFIED and refuses weak evidence (0.529425ms)
+✔ cited drafts are used only when they cite retrieved evidence (0.23706ms)
+✔ LLM synthesizer rejects answers that cite no real evidence (0.524069ms)
+✔ web search tool turns citations into evidence and parses confidence (2.943779ms)
+✔ supplied sources: markdown cleaned, chunked and ranked by relevance (local, no network) (2.138802ms)
+✔ S1 explicit factual question + uncertainty → gap detected → research → evidence-backed answer (26.417097ms)
+✔ S2 question answered confidently by another human → no intervention (4.563671ms)
+✔ S3 weak human answer ("I think so") → verification opportunity (4.977292ms)
+✔ S4 deferred question → high-priority gap, framed as avoided follow-up (2.829973ms)
+✔ S5 important question abandoned after topic change → tracked, not surfaced early, recovered at decision point (9.184492ms)
+✔ S6 sustained drift with unresolved objective items → one lightweight drift intervention (13.830456ms)
+✔ S7 research finds nothing → UNRESOLVED, no fabricated answer, no interruption (1.949195ms)
+✔ S8 multiple simultaneous gaps → prioritised and paced (5.067735ms)
+✔ S9 humans resolve the gap while research runs → research cancelled, intervention suppressed (5.421864ms)
+✔ S10 conclusion signal with open blockers → remaining blockers, not a summary (20.400029ms)
+✔ reasoning gap (feasibility → commitment) is conservative and only surfaces in the moment (1.106385ms)
+✔ no objective → no drift detection (nothing to drift from) (4.853363ms)
+✔ API: create session, stream events, ingest utterances, act, report, delete (905.694168ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1307.46037

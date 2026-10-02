@@ -1,0 +1,71 @@
+// Deterministic research fixtures for scenario tests. Wording is paraphrased for testing only;
+// it is NOT used as evidence that research works (see scripts/e2e-real-research.ts for that).
+
+import type { FixtureEntry } from '../src/research/tools/fixture.ts';
+
+export const FIXTURES: FixtureEntry[] = [
+  {
+    match: ['outsystems', 'saml'],
+    title: 'OutSystems docs — Configure SAML 2.0 authentication',
+    url: 'https://success.outsystems.com/documentation/fixture-saml',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: SAML 2.0 is supported for end-user authentication via the Users application.',
+    draft: { answer: 'FIXTURE: Yes — OutSystems supports SAML 2.0 for end users, configured in the Users app.', confidence: 'HIGH' },
+  },
+  {
+    match: ['teams', 'transcript'],
+    title: 'Microsoft Learn — Get meeting transcripts using Graph APIs',
+    url: 'https://learn.microsoft.com/fixture-transcripts',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: Transcripts can be fetched after the meeting ends; real-time media requires a bot.',
+    draft: { answer: 'FIXTURE: Only after the meeting via Graph; live access needs a real-time media bot.', confidence: 'HIGH' },
+  },
+  {
+    match: ['google', 'sheet', 'cell'],
+    title: 'Google Docs Editors Help — Files you can store in Google Drive',
+    url: 'https://support.google.com/fixture-sheets-limits',
+    tier: 'official_support',
+    excerpt: 'FIXTURE: Spreadsheets have a limit of up to 10 million cells.',
+    draft: { answer: 'FIXTURE: Up to 10 million cells per spreadsheet.', confidence: 'HIGH' },
+  },
+  {
+    match: ['bigquery', 'row-level', 'security'],
+    title: 'BigQuery docs — Row-level security',
+    url: 'https://cloud.google.com/fixture-bq-rls',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: BigQuery supports row-level access policies.',
+    draft: { answer: 'FIXTURE: Yes, via row access policies.', confidence: 'HIGH' },
+  },
+  {
+    match: ['snowflake', 'row-level'],
+    title: 'Snowflake docs — Row access policies',
+    url: 'https://docs.snowflake.com/fixture-rap',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: Row access policies can be applied to tables and views.',
+    draft: { answer: 'FIXTURE: Row access policies exist; external table support is limited.', confidence: 'LIKELY' },
+  },
+  {
+    match: ['redshift', 'row', 'size'],
+    title: 'Amazon Redshift docs — Quotas and limits',
+    url: 'https://docs.aws.amazon.com/fixture-redshift-limits',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: The maximum row size is 4 MB.',
+    draft: { answer: 'FIXTURE: 4 MB maximum row size.', confidence: 'HIGH' },
+  },
+  {
+    match: ['firebase', 'topic'],
+    title: 'Firebase docs — Topic messaging',
+    url: 'https://firebase.google.com/fixture-topics',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: Topic messaging is supported on Apple platforms.',
+    draft: { answer: 'FIXTURE: Yes.', confidence: 'HIGH' },
+  },
+  {
+    match: ['graph', 'transcript', 'after'],
+    title: 'Microsoft Learn — Meeting transcripts overview',
+    url: 'https://learn.microsoft.com/fixture-post-meeting',
+    tier: 'official_docs',
+    excerpt: 'FIXTURE: Transcripts are fetched after the meeting or call ends.',
+    draft: { answer: 'FIXTURE: Yes, post-meeting only.', confidence: 'HIGH' },
+  },
+];

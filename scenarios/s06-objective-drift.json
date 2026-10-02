@@ -1,0 +1,83 @@
+{
+  "id": "s06-objective-drift",
+  "title": "Session drifts from objective",
+  "description": "Sustained branding tangent while important items remain unresolved. A single, lightweight drift note is expected — not policing every tangent.",
+  "objective": "Decide whether this idea deserves validation and identify the biggest unknowns.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Why wouldn't Microsoft just build this into Copilot?"
+    },
+    {
+      "t": 6,
+      "s": "B",
+      "text": "Good question, I don't know."
+    },
+    {
+      "t": 14,
+      "s": "A",
+      "text": "Can Teams expose live transcript data to third-party apps?"
+    },
+    {
+      "t": 19,
+      "s": "B",
+      "text": "No idea, honestly."
+    },
+    {
+      "t": 30,
+      "s": "A",
+      "text": "By the way, we need a name. What about ThirdSeat as the name?"
+    },
+    {
+      "t": 50,
+      "s": "B",
+      "text": "I like ThirdSeat, it sounds like a person at the table."
+    },
+    {
+      "t": 70,
+      "s": "A",
+      "text": "The logo could be a simple chair icon with three legs."
+    },
+    {
+      "t": 90,
+      "s": "B",
+      "text": "A chair logo in navy blue would look clean on a dark background."
+    },
+    {
+      "t": 110,
+      "s": "A",
+      "text": "Or a warm orange colour palette, more friendly and approachable."
+    },
+    {
+      "t": 130,
+      "s": "B",
+      "text": "Orange and navy together could work as a palette for the website."
+    },
+    {
+      "t": 150,
+      "s": "A",
+      "text": "The website font should be rounded, maybe something geometric."
+    },
+    {
+      "t": 170,
+      "s": "B",
+      "text": "We should also grab the domain and the social handles for the brand."
+    },
+    {
+      "t": 190,
+      "s": "A",
+      "text": "Let me sketch three logo variants with the chair and the palette."
+    },
+    {
+      "t": 210,
+      "s": "B",
+      "text": "And a tagline, something like your third seat at the table."
+    },
+    {
+      "t": 230,
+      "s": "A",
+      "text": "I'll mock the landing page with the orange palette and chair logo."
+    }
+  ]
+}

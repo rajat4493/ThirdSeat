@@ -1,0 +1,98 @@
+{
+  "id": "w01-whiteboard-rehearsal",
+  "title": "Two-person whiteboarding rehearsal",
+  "description": "Rehearsal of the first validation environment: two people whiteboarding an idea. Uses real official documentation as supplied sources. NOT the product definition.",
+  "objective": "By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Okay, the idea: an AI presence in meetings that notices when we get stuck on a missing fact and fills it in live."
+    },
+    {
+      "t": 12,
+      "s": "B",
+      "text": "Like a third person who looks things up while we keep talking."
+    },
+    {
+      "t": 25,
+      "s": "A",
+      "text": "Can Teams actually give an external product access to live transcript data?"
+    },
+    {
+      "t": 31,
+      "s": "B",
+      "text": "I assume so. We'd need to check."
+    },
+    {
+      "t": 38,
+      "s": "A",
+      "text": "Why wouldn't Microsoft just build this into Copilot?"
+    },
+    {
+      "t": 43,
+      "s": "B",
+      "text": "That's a good point."
+    },
+    {
+      "t": 52,
+      "s": "B",
+      "text": "Anyway, architecture: a bot joins the call, we get audio, transcribe, detect gaps, research."
+    },
+    {
+      "t": 70,
+      "s": "A",
+      "text": "The research piece could use official docs first, then the web."
+    },
+    {
+      "t": 88,
+      "s": "B",
+      "text": "And we only show something if it's actually useful, otherwise it stays quiet."
+    },
+    {
+      "t": 110,
+      "s": "A",
+      "text": "Do Graph API meeting transcripts become available only after the meeting ends?"
+    },
+    {
+      "t": 116,
+      "s": "B",
+      "text": "Probably, but I'm not certain."
+    },
+    {
+      "t": 135,
+      "s": "A",
+      "text": "If they're post-meeting only, we'd need a real-time media bot instead."
+    },
+    {
+      "t": 160,
+      "s": "B",
+      "text": "This is technically possible."
+    },
+    {
+      "t": 166,
+      "s": "A",
+      "text": "Then we should build it."
+    },
+    {
+      "t": 180,
+      "s": "B",
+      "text": "Okay. What should we charge, and what goes into the MVP?"
+    },
+    {
+      "t": 195,
+      "s": "A",
+      "text": "Maybe per seat. The MVP is the side panel and research."
+    },
+    {
+      "t": 215,
+      "s": "B",
+      "text": "So where does that leave us? Do we validate this?"
+    }
+  ],
+  "sourceUrls": [
+    "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+    "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/bots/calls-and-meetings/real-time-media-concepts.md",
+    "https://raw.githubusercontent.com/microsoftgraph/microsoft-graph-docs-contrib/main/api-reference/v1.0/api/onlinemeeting-list-transcripts.md"
+  ]
+}

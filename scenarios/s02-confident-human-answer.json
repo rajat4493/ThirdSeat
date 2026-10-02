@@ -1,0 +1,33 @@
+{
+  "id": "s02-confident-human-answer",
+  "title": "Question answered confidently by a human",
+  "description": "A factual question is immediately and credibly answered. ThirdSeat must stay silent.",
+  "objective": "Select an architecture approach for the event pipeline.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "We need durable fan-out for these events."
+    },
+    {
+      "t": 6,
+      "s": "A",
+      "text": "Does AWS support fan-out from SNS to multiple SQS queues?"
+    },
+    {
+      "t": 10,
+      "s": "B",
+      "text": "Yes. We already use SNS to SQS fan-out for that in the billing project, it works fine."
+    },
+    {
+      "t": 18,
+      "s": "A",
+      "text": "Great, then the pipeline can follow the same pattern."
+    },
+    {
+      "t": 26,
+      "s": "B",
+      "text": "Agreed, let's sketch the consumers next."
+    }
+  ]
+}

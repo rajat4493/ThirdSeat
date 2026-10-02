@@ -1,0 +1,33 @@
+{
+  "id": "s03-weak-answer",
+  "title": "Weak human answer",
+  "description": "A tentative answer (\"I think so\") is a verification opportunity.",
+  "objective": "Decide the next release scope.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "For the release we want exports to work for big customers."
+    },
+    {
+      "t": 7,
+      "s": "A",
+      "text": "Can Google Sheets handle ten million cells in a single spreadsheet?"
+    },
+    {
+      "t": 11,
+      "s": "B",
+      "text": "I think so."
+    },
+    {
+      "t": 17,
+      "s": "A",
+      "text": "Okay, then exports to Sheets might be enough for the release."
+    },
+    {
+      "t": 26,
+      "s": "B",
+      "text": "Let's list the other release items."
+    }
+  ]
+}

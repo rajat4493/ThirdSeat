@@ -1,0 +1,34 @@
+
+━━━ w01-whiteboard-rehearsal: Two-person whiteboarding rehearsal
+objective: By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, supplied_sources
+  00:00  A: Okay, the idea: an AI presence in meetings that notices when we get stuck on a missing fact and fills it in live.
+  00:12  B: Like a third person who looks things up while we keep talking.
+  00:25  A: Can Teams actually give an external product access to live transcript data?
+  00:31  B: I assume so. We'd need to check.
+  00:31      · surfaced knowledge: Possibly relevant — "List transcripts" — List transcripts: “This API supports t…
+  00:31  ▶ [KNOWLEDGE / UNVERIFIED] Possibly relevant — "List transcripts" — List transcripts: “This API supports the retrieval of call transcripts from all meeting types except live events. Access to this API is governed by tenant administrator settings. For more information, see Error responses.” You deferred this — it looks resolvable now instead of becoming follow-up work.
+  00:38  A: Why wouldn't Microsoft just build this into Copilot?
+  00:43  B: That's a good point.
+  00:52  B: Anyway, architecture: a bot joins the call, we get audio, transcribe, detect gaps, research.
+  01:03      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
+  01:10  A: The research piece could use official docs first, then the web.
+  01:28  B: And we only show something if it's actually useful, otherwise it stays quiet.
+  01:50  A: Do Graph API meeting transcripts become available only after the meeting ends?
+  01:56  B: Probably, but I'm not certain.
+  01:56      · surfaced knowledge: Possibly relevant — Fetch Meeting Transcripts & Recordings — Get notified when…
+  01:56  ▶ [KNOWLEDGE / UNVERIFIED] Possibly relevant — Fetch Meeting Transcripts & Recordings — Get notified when a transcript or recording is available: “For more information about how your app can know when a transcript or recording is available after the online meeting or ad hoc call ends, see get notified when transcripts and recordings are available. For more information about how your app can know when the meetings ends, see…” Nobody in the conversation knew this.
+  02:15  A: If they're post-meeting only, we'd need a real-time media bot instead.
+  02:40  B: This is technically possible.
+  02:46  A: Then we should build it.
+  02:46      · surfaced open_thread: Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Co…
+  02:46  ▶ [OPEN_THREAD] Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Copilot?” It is still unresolved and looks relevant to the objective, and you're now making decisions that may depend on it.
+  03:00  B: Okay. What should we charge, and what goes into the MVP?
+  03:15  A: Maybe per seat. The MVP is the side panel and research.
+  03:35  B: So where does that leave us? Do we validate this?
+  03:35      · surfaced decision: You appear close to a conclusion. Based on the objective, these are still unres…
+  03:35  ▶ [DECISION] You appear close to a conclusion. Based on the objective, these are still unresolved:
+               1. Why wouldn't Microsoft just build this into Copilot?
+               2. Can Teams actually give an external product access to live transcript data? (only partly verified)
+               3. Do Graph API meeting transcripts become available only after the meeting ends? (only partly verified)
+  ── gaps: KNOWLEDGE:PARTIALLY_RESOLVED, OPEN_THREAD:OPEN, KNOWLEDGE:PARTIALLY_RESOLVED, REASONING:OPEN, DECISION:OPEN
+  ── surfaced 4, naturally resolved 0, TTI median 6000 ms

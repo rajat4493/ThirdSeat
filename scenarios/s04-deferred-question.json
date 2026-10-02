@@ -1,0 +1,38 @@
+{
+  "id": "s04-deferred-question",
+  "title": "Question deferred for later",
+  "description": "\"Let's check after the meeting\" turns a question into follow-up work. High-priority gap.",
+  "objective": "Decide whether to build on Microsoft Teams first.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "If we build on Teams first we need meeting data."
+    },
+    {
+      "t": 6,
+      "s": "A",
+      "text": "Can Teams actually give an external product access to live transcript data?"
+    },
+    {
+      "t": 11,
+      "s": "B",
+      "text": "I assume so. We'd need to check."
+    },
+    {
+      "t": 15,
+      "s": "A",
+      "text": "Let's check after the meeting then."
+    },
+    {
+      "t": 22,
+      "s": "B",
+      "text": "Fine. What about the onboarding flow?"
+    },
+    {
+      "t": 30,
+      "s": "A",
+      "text": "Onboarding should take under five minutes."
+    }
+  ]
+}

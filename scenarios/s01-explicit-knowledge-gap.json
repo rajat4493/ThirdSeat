@@ -1,0 +1,38 @@
+{
+  "id": "s01-explicit-knowledge-gap",
+  "title": "Explicit factual question + uncertainty",
+  "description": "Vendor evaluation. A factual question nobody can answer should be researched and answered with evidence.",
+  "objective": "Understand whether OutSystems satisfies our identity requirements.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Our customers will log in through their corporate identity provider."
+    },
+    {
+      "t": 8,
+      "s": "A",
+      "text": "Does OutSystems support SAML in this configuration?"
+    },
+    {
+      "t": 13,
+      "s": "B",
+      "text": "I'm not sure."
+    },
+    {
+      "t": 17,
+      "s": "C",
+      "text": "We can check later."
+    },
+    {
+      "t": 25,
+      "s": "A",
+      "text": "Okay, meanwhile let's look at the data model for the customer portal."
+    },
+    {
+      "t": 34,
+      "s": "B",
+      "text": "The portal needs accounts, contracts and invoices as the core entities."
+    }
+  ]
+}

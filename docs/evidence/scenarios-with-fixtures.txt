@@ -1,0 +1,185 @@
+
+━━━ s01-explicit-knowledge-gap: Explicit factual question + uncertainty
+objective: Understand whether OutSystems satisfies our identity requirements. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Our customers will log in through their corporate identity provider.
+  00:08  A: Does OutSystems support SAML in this configuration?
+  00:13  B: I'm not sure.
+  00:13      · surfaced knowledge: FIXTURE: Yes — OutSystems supports SAML 2.0 for end users, configured in the Us…
+  00:13  ▶ [KNOWLEDGE / HIGH] FIXTURE: Yes — OutSystems supports SAML 2.0 for end users, configured in the Users app. Nobody in the conversation knew this.
+  00:17  C: We can check later.
+  00:25  A: Okay, meanwhile let's look at the data model for the customer portal.
+  00:34  B: The portal needs accounts, contracts and invoices as the core entities.
+  ── gaps: KNOWLEDGE:RESOLVED
+  ── surfaced 1, naturally resolved 0, TTI median 5000 ms
+
+━━━ s02-confident-human-answer: Question answered confidently by a human
+objective: Select an architecture approach for the event pipeline. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: We need durable fan-out for these events.
+  00:06  A: Does AWS support fan-out from SNS to multiple SQS queues?
+  00:10  B: Yes. We already use SNS to SQS fan-out for that in the billing project, it works fine.
+  00:10      · stood down: "Does AWS support fan-out from SNS to multiple SQS queues?" — answered credibly in conversation ("yes" after factual question)
+  00:18  A: Great, then the pipeline can follow the same pattern.
+  00:26  B: Agreed, let's sketch the consumers next.
+  ── gaps: none
+  ── surfaced 0, naturally resolved 1, TTI median - ms
+
+━━━ s03-weak-answer: Weak human answer
+objective: Decide the next release scope. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: For the release we want exports to work for big customers.
+  00:07  A: Can Google Sheets handle ten million cells in a single spreadsheet?
+  00:11  B: I think so.
+  00:11      · surfaced knowledge: FIXTURE: Up to 10 million cells per spreadsheet. The answer given was tentative…
+  00:11  ▶ [KNOWLEDGE / HIGH] FIXTURE: Up to 10 million cells per spreadsheet. The answer given was tentative; this checks it.
+  00:17  A: Okay, then exports to Sheets might be enough for the release.
+  00:26  B: Let's list the other release items.
+  ── gaps: KNOWLEDGE:RESOLVED
+  ── surfaced 1, naturally resolved 0, TTI median 4000 ms
+
+━━━ s04-deferred-question: Question deferred for later
+objective: Decide whether to build on Microsoft Teams first. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: If we build on Teams first we need meeting data.
+  00:06  A: Can Teams actually give an external product access to live transcript data?
+  00:11  B: I assume so. We'd need to check.
+  00:11      · surfaced knowledge: FIXTURE: Only after the meeting via Graph; live access needs a real-time media…
+  00:11  ▶ [KNOWLEDGE / HIGH] FIXTURE: Only after the meeting via Graph; live access needs a real-time media bot. You deferred this — it looks resolvable now instead of becoming follow-up work.
+  00:15  A: Let's check after the meeting then.
+  00:22  B: Fine. What about the onboarding flow?
+  00:30  A: Onboarding should take under five minutes.
+  ── gaps: KNOWLEDGE:RESOLVED
+  ── surfaced 1, naturally resolved 0, TTI median 5000 ms
+
+━━━ s05-abandoned-thread: Important question abandoned after topic change
+objective: By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: So the core idea is an assistant that fills knowledge gaps during meetings.
+  00:10  A: Why wouldn't Microsoft just build this into Copilot?
+  00:15  B: That's a good point.
+  00:22  B: Anyway, let's talk about architecture. A bot joins the call and streams audio to our service.
+  00:35      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
+  00:40  A: The service transcribes, detects gaps, and researches in parallel.
+  00:58  B: We could run research workers per session and cache documentation pages.
+  01:20  A: Latency is the main engineering risk, answers need to arrive within seconds.
+  01:40  B: We can stream partial results to the side panel as evidence comes in.
+  02:05  A: The architecture seems workable for a prototype.
+  02:30  B: Okay. What should we charge for this, and what goes into the MVP?
+  02:30      · surfaced open_thread: Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Co…
+  02:30  ▶ [OPEN_THREAD] Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Copilot?” It is still unresolved and looks relevant to the objective, and you're now making decisions that may depend on it.
+  02:40  A: Maybe per seat, and the MVP is the side panel plus research.
+  ── gaps: OPEN_THREAD:OPEN
+  ── surfaced 1, naturally resolved 0, TTI median - ms
+
+━━━ s06-objective-drift: Session drifts from objective
+objective: Decide whether this idea deserves validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Why wouldn't Microsoft just build this into Copilot?
+  00:06  B: Good question, I don't know.
+  00:14  A: Can Teams expose live transcript data to third-party apps?
+  00:19  B: No idea, honestly.
+  00:19      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
+  00:19      · surfaced knowledge: FIXTURE: Only after the meeting via Graph; live access needs a real-time media…
+  00:19  ▶ [KNOWLEDGE / HIGH] FIXTURE: Only after the meeting via Graph; live access needs a real-time media bot. Nobody in the conversation knew this.
+  00:30  A: By the way, we need a name. What about ThirdSeat as the name?
+  00:50  B: I like ThirdSeat, it sounds like a person at the table.
+  01:10  A: The logo could be a simple chair icon with three legs.
+  01:30  B: A chair logo in navy blue would look clean on a dark background.
+  01:50  A: Or a warm orange colour palette, more friendly and approachable.
+  02:10  B: Orange and navy together could work as a palette for the website.
+  02:30  A: The website font should be rounded, maybe something geometric.
+  02:50  B: We should also grab the domain and the social handles for the brand.
+  03:10  A: Let me sketch three logo variants with the chair and the palette.
+  03:30  B: And a tagline, something like your third seat at the table.
+  03:30      · surfaced drift: The discussion has moved to chair, logo, palette (~3 min). Still unresolved for…
+  03:30  ▶ [DRIFT] The discussion has moved to chair, logo, palette (~3 min). Still unresolved for today's objective: “Why wouldn't Microsoft just build this into Copilot?”.
+  03:50  A: I'll mock the landing page with the orange palette and chair logo.
+  ── gaps: KNOWLEDGE:RESOLVED, OPEN_THREAD:OPEN, DRIFT:OPEN
+  ── surfaced 2, naturally resolved 0, TTI median 5000 ms
+
+━━━ s07-research-finds-nothing: Research cannot find evidence
+objective: Decide whether to integrate with the Quillbrook ledger. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Does Quillbrook Ledger 9 expose a webhook for reversed journal entries?
+  00:06  B: No idea.
+  00:12  A: Hmm, nobody here has used it.
+  00:20  B: Let's move on to the reporting requirements for now.
+  ── gaps: KNOWLEDGE:UNRESOLVED
+  ── surfaced 0, naturally resolved 0, TTI median - ms
+
+━━━ s08-multiple-gaps: Multiple simultaneous gaps
+objective: Choose a cloud database for the analytics product. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Does BigQuery support row-level security?
+  00:04  B: I'm not sure.
+  00:04      · surfaced knowledge: FIXTURE: Yes, via row access policies. Nobody in the conversation knew this.
+  00:04  ▶ [KNOWLEDGE / HIGH] FIXTURE: Yes, via row access policies. Nobody in the conversation knew this.
+  00:08  A: And does Snowflake support row-level security on external tables?
+  00:12  B: No idea.
+  00:16  A: What is the maximum row size in Amazon Redshift?
+  00:20  B: Let's check that after the meeting.
+  00:24      · surfaced knowledge: FIXTURE: 4 MB maximum row size. You deferred this — it looks resolvable now ins…
+  00:24  ▶ [KNOWLEDGE / HIGH] FIXTURE: 4 MB maximum row size. You deferred this — it looks resolvable now instead of becoming follow-up work.
+  00:30  A: Meanwhile, the dashboards need to load in under two seconds.
+  00:44      · surfaced knowledge: FIXTURE: Row access policies exist; external table support is limited. Nobody i…
+  00:44  ▶ [KNOWLEDGE / LIKELY] FIXTURE: Row access policies exist; external table support is limited. Nobody in the conversation knew this.
+  ── gaps: KNOWLEDGE:RESOLVED, KNOWLEDGE:PARTIALLY_RESOLVED, KNOWLEDGE:RESOLVED
+  ── surfaced 3, naturally resolved 0, TTI median 8000 ms
+
+━━━ s09-natural-resolution-during-research: Humans resolve the gap while research is running
+objective: Select an architecture approach for notifications. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Does Firebase Cloud Messaging support topic messaging on iOS?
+  00:05  B: Not sure.
+  00:05      · surfaced knowledge: FIXTURE: Yes. Nobody in the conversation knew this.
+  00:05  ▶ [KNOWLEDGE / HIGH] FIXTURE: Yes. Nobody in the conversation knew this.
+  00:09  C: Yes, it does — we use FCM topic messaging on iOS in the mobile app already.
+  00:16  A: Good, then notifications can use topics.
+  ── gaps: KNOWLEDGE:RESOLVED
+  ── surfaced 1, naturally resolved 0, TTI median 5000 ms
+
+━━━ s10-conclusion: Conversation reaches enough information for conclusion
+objective: Decide whether this idea deserves further validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Who would actually pay for this — team leads or the company?
+  00:06  B: Good question.
+  00:14  A: Why wouldn't Microsoft just build this into Copilot?
+  00:19  B: Fair point, I don't know.
+  00:19      · tracking open thread: "Who would actually pay for this — team leads or the company?"
+  00:30  A: Does Zoom offer a real-time transcript API for apps?
+  00:35  B: Yes, Zoom has a real-time media streams API that apps can use, we prototyped with it last year.
+  00:35      · stood down: "Does Zoom offer a real-time transcript API for apps?" — answered credibly in conversation ("yes" after factual question)
+  00:35      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
+  00:50  A: The technical side seems feasible for a prototype.
+  01:10  B: So where does that leave us? Is it worth validating?
+  01:10      · surfaced decision: You appear close to a conclusion. Based on the objective, these are still unres…
+  01:10  ▶ [DECISION] You appear close to a conclusion. Based on the objective, these are still unresolved:
+               1. Who would actually pay for this — team leads or the company?
+               2. Why wouldn't Microsoft just build this into Copilot?
+               1 other question(s) raised were answered during the session.
+  ── gaps: OPEN_THREAD:OPEN, OPEN_THREAD:OPEN, DECISION:OPEN
+  ── surfaced 1, naturally resolved 1, TTI median - ms
+
+━━━ w01-whiteboard-rehearsal: Two-person whiteboarding rehearsal
+objective: By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Okay, the idea: an AI presence in meetings that notices when we get stuck on a missing fact and fills it in live.
+  00:12  B: Like a third person who looks things up while we keep talking.
+  00:25  A: Can Teams actually give an external product access to live transcript data?
+  00:31  B: I assume so. We'd need to check.
+  00:31      · surfaced knowledge: FIXTURE: Only after the meeting via Graph; live access needs a real-time media…
+  00:31  ▶ [KNOWLEDGE / HIGH] FIXTURE: Only after the meeting via Graph; live access needs a real-time media bot. You deferred this — it looks resolvable now instead of becoming follow-up work.
+  00:38  A: Why wouldn't Microsoft just build this into Copilot?
+  00:43  B: That's a good point.
+  00:52  B: Anyway, architecture: a bot joins the call, we get audio, transcribe, detect gaps, research.
+  01:03      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
+  01:10  A: The research piece could use official docs first, then the web.
+  01:28  B: And we only show something if it's actually useful, otherwise it stays quiet.
+  01:50  A: Do Graph API meeting transcripts become available only after the meeting ends?
+  01:56  B: Probably, but I'm not certain.
+  01:56      · surfaced knowledge: FIXTURE: Yes, post-meeting only. Nobody in the conversation knew this.
+  01:56  ▶ [KNOWLEDGE / HIGH] FIXTURE: Yes, post-meeting only. Nobody in the conversation knew this.
+  02:15  A: If they're post-meeting only, we'd need a real-time media bot instead.
+  02:40  B: This is technically possible.
+  02:46  A: Then we should build it.
+  02:46      · surfaced open_thread: Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Co…
+  02:46  ▶ [OPEN_THREAD] Earlier (2 min ago) you raised: “Why wouldn't Microsoft just build this into Copilot?” It is still unresolved and looks relevant to the objective, and you're now making decisions that may depend on it.
+  03:00  B: Okay. What should we charge, and what goes into the MVP?
+  03:15  A: Maybe per seat. The MVP is the side panel and research.
+  03:35  B: So where does that leave us? Do we validate this?
+  03:35      · surfaced decision: You appear close to a conclusion. Based on the objective, these are still unres…
+  03:35  ▶ [DECISION] You appear close to a conclusion. Based on the objective, these are still unresolved:
+               1. Why wouldn't Microsoft just build this into Copilot?
+               2 other question(s) raised were answered during the session.
+  ── gaps: KNOWLEDGE:RESOLVED, OPEN_THREAD:OPEN, KNOWLEDGE:RESOLVED, REASONING:OPEN, DECISION:OPEN
+  ── surfaced 4, naturally resolved 0, TTI median 6000 ms

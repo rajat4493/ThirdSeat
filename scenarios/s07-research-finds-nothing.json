@@ -1,0 +1,28 @@
+{
+  "id": "s07-research-finds-nothing",
+  "title": "Research cannot find evidence",
+  "description": "A question nothing reliable can answer must end UNRESOLVED with no fabricated answer and no interruption.",
+  "objective": "Decide whether to integrate with the Quillbrook ledger.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Does Quillbrook Ledger 9 expose a webhook for reversed journal entries?"
+    },
+    {
+      "t": 6,
+      "s": "B",
+      "text": "No idea."
+    },
+    {
+      "t": 12,
+      "s": "A",
+      "text": "Hmm, nobody here has used it."
+    },
+    {
+      "t": 20,
+      "s": "B",
+      "text": "Let's move on to the reporting requirements for now."
+    }
+  ]
+}

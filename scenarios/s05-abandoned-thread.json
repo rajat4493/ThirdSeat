@@ -1,0 +1,63 @@
+{
+  "id": "s05-abandoned-thread",
+  "title": "Important question abandoned after topic change",
+  "description": "An important strategic question is acknowledged and dropped. It must be tracked, not surfaced immediately, then recovered when the group starts deciding.",
+  "objective": "By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "So the core idea is an assistant that fills knowledge gaps during meetings."
+    },
+    {
+      "t": 10,
+      "s": "A",
+      "text": "Why wouldn't Microsoft just build this into Copilot?"
+    },
+    {
+      "t": 15,
+      "s": "B",
+      "text": "That's a good point."
+    },
+    {
+      "t": 22,
+      "s": "B",
+      "text": "Anyway, let's talk about architecture. A bot joins the call and streams audio to our service."
+    },
+    {
+      "t": 40,
+      "s": "A",
+      "text": "The service transcribes, detects gaps, and researches in parallel."
+    },
+    {
+      "t": 58,
+      "s": "B",
+      "text": "We could run research workers per session and cache documentation pages."
+    },
+    {
+      "t": 80,
+      "s": "A",
+      "text": "Latency is the main engineering risk, answers need to arrive within seconds."
+    },
+    {
+      "t": 100,
+      "s": "B",
+      "text": "We can stream partial results to the side panel as evidence comes in."
+    },
+    {
+      "t": 125,
+      "s": "A",
+      "text": "The architecture seems workable for a prototype."
+    },
+    {
+      "t": 150,
+      "s": "B",
+      "text": "Okay. What should we charge for this, and what goes into the MVP?"
+    },
+    {
+      "t": 160,
+      "s": "A",
+      "text": "Maybe per seat, and the MVP is the side panel plus research."
+    }
+  ]
+}

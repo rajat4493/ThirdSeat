@@ -1,0 +1,43 @@
+{
+  "id": "s08-multiple-gaps",
+  "title": "Multiple simultaneous gaps",
+  "description": "Several gaps open at once; the deferred one should be researched and surfaced first, and cards should be paced.",
+  "objective": "Choose a cloud database for the analytics product.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Does BigQuery support row-level security?"
+    },
+    {
+      "t": 4,
+      "s": "B",
+      "text": "I'm not sure."
+    },
+    {
+      "t": 8,
+      "s": "A",
+      "text": "And does Snowflake support row-level security on external tables?"
+    },
+    {
+      "t": 12,
+      "s": "B",
+      "text": "No idea."
+    },
+    {
+      "t": 16,
+      "s": "A",
+      "text": "What is the maximum row size in Amazon Redshift?"
+    },
+    {
+      "t": 20,
+      "s": "B",
+      "text": "Let's check that after the meeting."
+    },
+    {
+      "t": 30,
+      "s": "A",
+      "text": "Meanwhile, the dashboards need to load in under two seconds."
+    }
+  ]
+}

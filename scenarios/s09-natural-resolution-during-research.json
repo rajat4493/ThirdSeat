@@ -1,0 +1,28 @@
+{
+  "id": "s09-natural-resolution-during-research",
+  "title": "Humans resolve the gap while research is running",
+  "description": "Research starts, then a participant answers credibly. Research must be cancelled / the intervention suppressed.",
+  "objective": "Select an architecture approach for notifications.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Does Firebase Cloud Messaging support topic messaging on iOS?"
+    },
+    {
+      "t": 5,
+      "s": "B",
+      "text": "Not sure."
+    },
+    {
+      "t": 9,
+      "s": "C",
+      "text": "Yes, it does — we use FCM topic messaging on iOS in the mobile app already."
+    },
+    {
+      "t": 16,
+      "s": "A",
+      "text": "Good, then notifications can use topics."
+    }
+  ]
+}

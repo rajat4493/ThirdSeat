@@ -1,0 +1,191 @@
+{
+  "ranAt": "2026-10-02T09:17:20.465Z",
+  "analyzer": "heuristic",
+  "tools": [
+    "conversation_context",
+    "supplied_sources"
+  ],
+  "llm": null,
+  "sourceLoadErrors": [],
+  "sourcesFetchedMs": 61,
+  "timeline": [
+    "  0.06s  A: Okay, the idea: an AI presence in meetings that notices when we get stuck on a missing fact and fills it in live.",
+    "  0.66s  B: Like a third person who looks things up while we keep talking.",
+    "  1.31s  A: Can Teams actually give an external product access to live transcript data?",
+    "  1.61s  B: I assume so. We'd need to check.",
+    "  1.62s    · surfaced knowledge: Possibly relevant — \"List transcripts\" — List transcripts: “This API supports t…",
+    "  1.62s  ▶ Possibly relevant — \"List transcripts\" — List transcripts: “This API supports the retrieval of call transcripts from all meeting types except live events. Access to this API is governed by tenant administrator settings. For more information, see Error responses.” You deferred this — it looks resolvable now instead of becoming follow-up work.",
+    "  1.96s  A: Why wouldn't Microsoft just build this into Copilot?",
+    "  2.21s  B: That's a good point.",
+    "  2.66s  B: Anyway, architecture: a bot joins the call, we get audio, transcribe, detect gaps, research.",
+    "  3.56s  A: The research piece could use official docs first, then the web.",
+    "  3.56s    · tracking open thread: \"Why wouldn't Microsoft just build this into Copilot?\"",
+    "  4.46s  B: And we only show something if it's actually useful, otherwise it stays quiet.",
+    "  5.56s  A: Do Graph API meeting transcripts become available only after the meeting ends?",
+    "  5.86s  B: Probably, but I'm not certain.",
+    "  6.81s  A: If they're post-meeting only, we'd need a real-time media bot instead.",
+    "  8.06s  B: This is technically possible.",
+    "  8.36s  A: Then we should build it.",
+    "  9.06s  B: Okay. What should we charge, and what goes into the MVP?",
+    "  9.81s  A: Maybe per seat. The MVP is the side panel and research.",
+    " 10.81s  B: So where does that leave us? Do we validate this?",
+    " 10.81s    · surfaced decision: You appear close to a conclusion. Based on the objective, these are still unres…",
+    " 10.81s  ▶ You appear close to a conclusion. Based on the objective, these are still unresolved:\n1. Why wouldn't Microsoft just build this into Copilot?\n2. Can Teams actually give an external product access to live transcript data? (only partly verified)\n3. Do Graph API meeting transcripts become available only after the meeting ends? (only partly verified)"
+  ],
+  "knowledgeGaps": [
+    {
+      "question": "Can Teams actually give an external product access to live transcript data?",
+      "reason": "DEFERRED_FOR_LATER",
+      "status": "PARTIALLY_RESOLVED",
+      "confidence": "UNVERIFIED",
+      "answer": "Possibly relevant — \"List transcripts\" — List transcripts: “This API supports the retrieval of call transcripts from all meeting types except live events. Access to this API is governed by tenant administrator settings. For more information, see Error responses.”",
+      "caveat": "Passage matched by keywords only (no AI verification that it answers the question). Open the source to confirm.",
+      "evidence": [
+        {
+          "title": "\"List transcripts\" — List transcripts",
+          "url": "https://raw.githubusercontent.com/microsoftgraph/microsoft-graph-docs-contrib/main/api-reference/v1.0/api/onlinemeeting-list-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.75,
+          "excerpt": "This API supports the retrieval of call transcripts from all meeting types except live events. Access to this API is governed by tenant administrator settings. For more information, see Error responses."
+        },
+        {
+          "title": "Fetch Meeting Transcripts & Recordings — Use cases",
+          "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.689,
+          "excerpt": "By using permissions CallTranscripts.Read.All and CallRecordings.Read.All, the call transcript is available for: • Capturing important action items • Listing to-dos or issues • Follow-up meetings and notifications |   | Fetch transcript and recordings post-call for PSTN calls | You have a call center where human assistants provide customer support using incoming or outgoing PSTN calls using Microsoft Teams. The assistants need to manually update external systems of record with notes from each call after the call ends. | Using Graph APIs in your app to fetch transcript and recordings post-call…"
+        },
+        {
+          "title": "Fetch Meeting Transcripts & Recordings — Configure permissions on Microsoft Entra ID to access transcript and recording",
+          "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.575,
+          "excerpt": "These resources supply the URLs to use for fetching the data."
+        }
+      ],
+      "latencyMs": {
+        "triggerToQualified": 301,
+        "researchDuration": 4,
+        "researchStartToFirstEvidence": 5,
+        "timeToIntervention": 306
+      },
+      "decisionLog": [
+        "factual question about a named/external subject; humans deferred the answer",
+        "research started",
+        "keyword match in official_docs source (unverified); tools: conversation_context, supplied_sources",
+        "surfaced (priority 0.47)"
+      ]
+    },
+    {
+      "question": "Do Graph API meeting transcripts become available only after the meeting ends?",
+      "reason": "EXPLICIT_UNANSWERED_QUESTION",
+      "status": "PARTIALLY_RESOLVED",
+      "confidence": "UNVERIFIED",
+      "answer": "Possibly relevant — Fetch Meeting Transcripts & Recordings — Get notified when a transcript or recording is available: “For more information about how your app can know when a transcript or recording is available after the online meeting or ad hoc call ends, see get notified when transcripts and recordings are available. For more information about how your app can know when the meetings ends, see…”",
+      "caveat": "Passage matched by keywords only (no AI verification that it answers the question). Open the source to confirm.",
+      "evidence": [
+        {
+          "title": "Fetch Meeting Transcripts & Recordings — Get notified when a transcript or recording is available",
+          "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.938,
+          "excerpt": "For more information about how your app can know when a transcript or recording is available after the online meeting or ad hoc call ends, see get notified when transcripts and recordings are available. For more information about how your app can know when the meetings ends, see subscribe to change notifications and use Bot Framework to get meeting ID and organizer ID. - The process for calling Graph APIs to access and retrieve transcripts and recordings remains the same for both meeting-specific RSC application permissions and organization-wide application permissions."
+        },
+        {
+          "title": "Fetch Meeting Transcripts & Recordings — Get notified when a transcript or recording is available",
+          "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.848,
+          "excerpt": "Your app can fetch the transcript and recording for a meeting when it's generated after the meeting ends. For ad hoc calls, meeting ID won't be available as these are spontaneous events (PSTN, 1:1, group calls). While there are no restrictions on notifications path for ad hoc calls, getAll APIs aren't available for ad hoc call instances as well (For example, listing of artifacts at call level)."
+        },
+        {
+          "title": "Fetch Meeting Transcripts & Recordings — Get meeting transcripts and recordings using Graph APIs",
+          "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+          "tier": "official_docs",
+          "score": 0.801,
+          "excerpt": "You can now configure your app to fetch Microsoft Teams transcripts and recordings after the meeting or call ends. Your app can use Microsoft Graph REST APIs to access and fetch transcripts and recordings generated for the following instances: - a scheduled online meeting - an ad hoc call"
+        }
+      ],
+      "latencyMs": {
+        "triggerToQualified": 300,
+        "researchDuration": 2,
+        "researchStartToFirstEvidence": 2,
+        "timeToIntervention": null
+      },
+      "decisionLog": [
+        "factual question about a named/external subject; humans said they do not know",
+        "research started",
+        "keyword match in official_docs source (unverified); tools: conversation_context, supplied_sources"
+      ]
+    }
+  ],
+  "evidenceVerification": [
+    {
+      "gap": "Can Teams actually give an external product access to live transcript data?",
+      "url": "https://raw.githubusercontent.com/microsoftgraph/microsoft-graph-docs-contrib/main/api-reference/v1.0/api/onlinemeeting-list-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    },
+    {
+      "gap": "Can Teams actually give an external product access to live transcript data?",
+      "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    },
+    {
+      "gap": "Can Teams actually give an external product access to live transcript data?",
+      "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    },
+    {
+      "gap": "Do Graph API meeting transcripts become available only after the meeting ends?",
+      "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    },
+    {
+      "gap": "Do Graph API meeting transcripts become available only after the meeting ends?",
+      "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    },
+    {
+      "gap": "Do Graph API meeting transcripts become available only after the meeting ends?",
+      "url": "https://raw.githubusercontent.com/MicrosoftDocs/msteams-docs/main/msteams-platform/graph-api/meeting-transcripts/overview-transcripts.md",
+      "tier": "official_docs",
+      "excerptFoundInLiveDocument": true,
+      "toolId": "supplied_sources"
+    }
+  ],
+  "report": {
+    "meaningfulGapsDetected": 5,
+    "knowledgeGapsDetected": 2,
+    "gapsResolvedDuringSession": 0,
+    "partiallyResolved": 2,
+    "unresolved": 0,
+    "naturallyResolved": 0,
+    "stillOpen": 1,
+    "openThreadsTracked": 1,
+    "unresolvedQuestionsRecovered": 3,
+    "interventionsSurfaced": 2,
+    "interventionsUsed": 0,
+    "interventionsDismissed": 0,
+    "falsePositivesFlagged": 0,
+    "incorrectAnswersFlagged": 0,
+    "tooLateFlagged": 0,
+    "followUpsPotentiallyAvoided": 1,
+    "followUpsConfirmedAvoided": 0,
+    "helpedConclusionConfirmed": 0,
+    "driftInterventions": 0,
+    "conclusionInterventions": 1,
+    "reasoningInterventions": 0,
+    "userRequestedLookups": 0,
+    "surfacedWhileTopicLive": 2
+  }
+}

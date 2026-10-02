@@ -1,0 +1,48 @@
+{
+  "id": "s10-conclusion",
+  "title": "Conversation reaches enough information for conclusion",
+  "description": "The group signals it is concluding while important items are unresolved. Surface the remaining blockers — not a summary.",
+  "objective": "Decide whether this idea deserves further validation and identify the biggest unknowns.",
+  "lines": [
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Who would actually pay for this — team leads or the company?"
+    },
+    {
+      "t": 6,
+      "s": "B",
+      "text": "Good question."
+    },
+    {
+      "t": 14,
+      "s": "A",
+      "text": "Why wouldn't Microsoft just build this into Copilot?"
+    },
+    {
+      "t": 19,
+      "s": "B",
+      "text": "Fair point, I don't know."
+    },
+    {
+      "t": 30,
+      "s": "A",
+      "text": "Does Zoom offer a real-time transcript API for apps?"
+    },
+    {
+      "t": 35,
+      "s": "B",
+      "text": "Yes, Zoom has a real-time media streams API that apps can use, we prototyped with it last year."
+    },
+    {
+      "t": 50,
+      "s": "A",
+      "text": "The technical side seems feasible for a prototype."
+    },
+    {
+      "t": 70,
+      "s": "B",
+      "text": "So where does that leave us? Is it worth validating?"
+    }
+  ]
+}
