@@ -40,10 +40,14 @@ const ago = (t) => {
 // ───────────── setup ─────────────
 
 const config = await api('/api/config');
-$('mode').textContent = config.llm ? `AI: ${config.llm.id}${config.llm.webSearch ? ' + web search' : ''}` : 'AI off · heuristics + supplied sources';
-$('privacy').textContent = config.llm
+$('mode').textContent = `${config.llm ? `AI: ${config.llm.id}${config.llm.webSearch ? ' + web search' : ''}` : 'AI off · heuristics + supplied sources'} · ${config.stt ? `audio: ${config.stt.id}` : 'audio: browser only'}`;
+const sttNote = config.stt
+  ? ` Audio: speech is transcribed by ${config.stt.id}; meeting audio is sent there.`
+  : ' Audio: no server speech-to-text configured; room listening uses Chrome’s built-in recognition (audio goes to Google), call-tab audio is unavailable.';
+$('privacy').textContent = (config.llm
   ? 'Privacy: conversation snippets are sent to Anthropic for analysis and research. The transcript stays in server memory only and is deleted with the session.'
-  : 'Privacy: no AI service is used in this mode. Supplied URLs are fetched from this server. The transcript stays in server memory only and is deleted with the session.';
+  : 'Privacy: no AI service is used in this mode. Supplied URLs are fetched from this server. The transcript stays in server memory only and is deleted with the session.') + sttNote;
+if (!config.stt) $('audioMode').querySelector('option[value=call]').textContent += ' — needs server speech-to-text';
 for (const s of config.scenarios) $('scenario').append(el('option', { value: s.id }, s.title));
 const describe = () => {
   const s = config.scenarios.find((x) => x.id === $('scenario').value);
@@ -55,6 +59,7 @@ describe();
 async function start(body) {
   const snap = await api('/api/sessions', body);
   session = snap.session;
+  session.audioMode = body.audioMode;
   startAt = Date.now();
   $('setup').classList.add('hidden');
   $('live').classList.remove('hidden');
@@ -70,7 +75,9 @@ async function start(body) {
 }
 
 $('startBtn').addEventListener('click', () =>
-  start({ title: $('title').value, objective: $('obj').value, sourceUrls: $('urls').value.split(/\s+/).filter(Boolean) }).catch(alert),
+  start({ title: $('title').value, objective: $('obj').value, sourceUrls: $('urls').value.split(/\s+/).filter(Boolean), audioMode: $('audioMode').value })
+    .then(() => $('audioMode').value !== 'off' && toggleListening())
+    .catch((e) => alert(e.message)),
 );
 $('rehearseBtn').addEventListener('click', async () => {
   const s = config.scenarios.find((x) => x.id === $('scenario').value);
@@ -82,8 +89,10 @@ $('rehearseBtn').addEventListener('click', async () => {
 
 function connect() {
   events = new EventSource(`/api/sessions/${session.id}/events`);
+  events.addEventListener('caption', (m) => showCaption(JSON.parse(m.data)));
   events.addEventListener('utterance', (m) => {
     const { utterance } = JSON.parse(m.data);
+    showCaption(null);
     utterances.push(utterance);
     renderTranscript(utterance);
   });
@@ -106,7 +115,7 @@ function connect() {
 }
 
 function renderTranscript(u) {
-  const row = el('div', { class: 'utt', 'data-id': u.id }, el('span', { class: 't' }, fmtClock(u.at)), el('span', { class: 's' }, u.speaker), el('span', { class: 'x' }, u.text));
+  const row = el('div', { class: 'utt', 'data-id': u.id }, el('span', { class: 't' }, fmtClock(u.at)), el('span', { class: 's', 'data-speaker': u.speaker, title: 'Click to rename', onclick: () => renameSpeaker(u.speaker) }, displayName(u.speaker)), el('span', { class: 'x' }, u.text));
   const box = $('transcript');
   const stick = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
   box.append(row);
@@ -239,35 +248,95 @@ $('askForm').addEventListener('submit', async (e) => {
   await api(`/api/sessions/${session.id}/ask`, { question: q });
 });
 
-// Browser speech recognition (Chrome sends audio to Google's service; no speaker separation).
+// ───────────── audio ─────────────
+// Preferred: server speech-to-text (speaker separation, call-tab audio). Fallback: Chrome's built-in
+// speech recognition for the room microphone (no speaker separation; audio goes to Google).
+
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recog = null;
-$('micBtn').addEventListener('click', () => {
-  if (!Recognition) return alert('Speech recognition is not available in this browser. Use Chrome, or type utterances.');
-  if (recog) {
-    recog.onend = null;
-    recog.stop();
-    recog = null;
-    $('micBtn').classList.remove('on');
-    return;
-  }
-  recog = new Recognition();
+let listening = null; // { stop() }
+
+function setListening(on, label) {
+  $('micBtn').classList.toggle('on', on);
+  $('micBtn').textContent = on ? '■ Stop listening' : '🎙 Listen';
+  $('audioStatus').textContent = label ?? '';
+}
+
+function startBrowserRecognition() {
+  if (!Recognition) throw new Error('No server speech-to-text configured and this browser has no built-in speech recognition. Use Chrome, or configure THIRDSEAT_STT.');
+  let active = true;
+  const recog = new Recognition();
   recog.continuous = true;
-  recog.interimResults = false;
+  recog.interimResults = true;
   recog.lang = navigator.language || 'en-US';
   recog.onresult = (ev) => {
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       const r = ev.results[i];
-      if (r.isFinal && r[0].transcript.trim()) {
-        api(`/api/sessions/${session.id}/utterances`, { speaker: $('speaker').value, text: r[0].transcript.trim() });
-      }
+      const text = r[0].transcript.trim();
+      if (!text) continue;
+      if (r.isFinal) {
+        showCaption(null);
+        api(`/api/sessions/${session.id}/utterances`, { speaker: 'Room', text });
+      } else showCaption({ speaker: 'Room', text });
     }
   };
-  recog.onend = () => recog && recog.start(); // keep listening
+  recog.onend = () => active && recog.start(); // keep listening
   recog.start();
-  $('speaker').value = 'Room';
-  $('micBtn').classList.add('on');
-});
+  return { stop: async () => { active = false; recog.stop(); showCaption(null); } };
+}
+
+async function toggleListening() {
+  if (listening) {
+    const l = listening;
+    listening = null;
+    await l.stop();
+    setListening(false, '');
+    return;
+  }
+  const mode = session.audioMode ?? 'room';
+  try {
+    if (config.stt) {
+      const { startAudio } = await import('/audio.js');
+      setListening(true, mode === 'call' ? 'Choose the call tab and tick “Share tab audio”…' : 'Connecting…');
+      listening = await startAudio({
+        sessionId: session.id,
+        mode,
+        onStatus: (state, message) => {
+          if (state === 'listening') setListening(true, mode === 'call' ? 'Listening to your mic + the call tab' : 'Listening to the room');
+          if (state === 'error') setListening(!!listening, `Audio problem: ${message}`);
+          if (state === 'closed' && listening) {
+            listening = null;
+            setListening(false, 'Audio stream ended');
+          }
+        },
+      });
+    } else {
+      if (mode === 'call') throw new Error('Capturing call audio needs server speech-to-text (THIRDSEAT_STT=deepgram). Use room mode, or type.');
+      listening = startBrowserRecognition();
+      setListening(true, 'Listening (browser speech recognition, no speaker separation)');
+    }
+  } catch (e) {
+    listening = null;
+    setListening(false, '');
+    alert(e.message);
+  }
+}
+$('micBtn').addEventListener('click', toggleListening);
+
+function showCaption(c) {
+  const box = $('caption');
+  if (!c) return box.replaceChildren();
+  box.replaceChildren(el('span', { class: 's' }, displayName(c.speaker)), ' ', el('span', {}, c.text));
+}
+
+// Speaker names: diarization gives "Speaker 1", "Call 2"… — click a name in the transcript to rename it.
+const speakerNames = {};
+const displayName = (s) => speakerNames[s] ?? s;
+function renameSpeaker(s) {
+  const name = prompt(`Name for “${s}”`, displayName(s));
+  if (!name) return;
+  speakerNames[s] = name.trim().slice(0, 40);
+  for (const n of document.querySelectorAll(`.utt .s[data-speaker="${CSS.escape(s)}"]`)) n.textContent = speakerNames[s];
+}
 
 // ───────────── end / report ─────────────
 
@@ -281,7 +350,7 @@ const VALIDATION_QUESTIONS = [
 ];
 
 $('endBtn').addEventListener('click', async () => {
-  if (recog) $('micBtn').click();
+  if (listening) await toggleListening();
   const report = await api(`/api/sessions/${session.id}/end`, {});
   showReport(report);
 });

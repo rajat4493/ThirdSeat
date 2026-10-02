@@ -10,9 +10,18 @@ Not a note taker, transcriber or summariser. See [`duck/HUMAN_INTENT.md`](duck/H
 ```bash
 npm install
 npm start            # http://127.0.0.1:4317
-npm test             # 31 deterministic tests
+npm test             # 36 deterministic tests
 npm run e2e:real     # real-retrieval proof run → docs/evidence/
 ```
+
+Live audio (room microphone, or a video call in a browser tab + your mic, with speaker separation):
+
+```bash
+export DEEPGRAM_API_KEY=...
+THIRDSEAT_STT=deepgram npm start     # then choose the audio input when starting a session
+```
+
+Without it, room listening falls back to Chrome's built-in speech recognition.
 
 Optional AI mode (sends conversation snippets to Anthropic):
 

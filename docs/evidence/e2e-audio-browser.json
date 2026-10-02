@@ -1,0 +1,67 @@
+{
+  "ranAt": "2026-10-02T09:43:02.188Z",
+  "note": "Speech recognition is a local stand-in speaking Deepgram's protocol (the real service is unreachable from the build environment). Audio capture (fake microphone device; a real tab playing audio for call mode), AudioWorklet PCM encoding, WebSocket streaming, diarized utterance assembly, the engine and the UI are real.",
+  "results": [
+    {
+      "mode": "room",
+      "audioStatus": "Listening to the room",
+      "transcriptSpeakers": [
+        "Speaker 1",
+        "Speaker 2",
+        "Speaker 1"
+      ],
+      "gapCards": [
+        "Can Microsoft Teams give an external app access to live transcript data?"
+      ],
+      "provider": {
+        "channels": "1",
+        "multichannel": "false",
+        "diarize": "true",
+        "sampleRate": "16000",
+        "authorization": "Token ***",
+        "bytesReceived": 186368,
+        "nonSilentSamples": 7288,
+        "nonSilentByChannel": [
+          7288
+        ],
+        "controls": [
+          "KeepAlive",
+          "CloseStream"
+        ]
+      },
+      "pageErrors": [],
+      "ok": true
+    },
+    {
+      "mode": "call",
+      "audioStatus": "Listening to your mic + the call tab",
+      "transcriptSpeakers": [
+        "Call 1",
+        "Mic 1",
+        "Call 2"
+      ],
+      "gapCards": [
+        "Does Zoom let apps receive raw meeting audio in real time?"
+      ],
+      "provider": {
+        "channels": "2",
+        "multichannel": "true",
+        "diarize": "true",
+        "sampleRate": "16000",
+        "authorization": "Token ***",
+        "bytesReceived": 406016,
+        "nonSilentSamples": 11306,
+        "nonSilentByChannel": [
+          7946,
+          3360
+        ],
+        "controls": [
+          "KeepAlive",
+          "CloseStream"
+        ]
+      },
+      "pageErrors": [],
+      "ok": true
+    }
+  ]
+}

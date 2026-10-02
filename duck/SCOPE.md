@@ -9,7 +9,7 @@
 
 ## IN SCOPE (V0)
 
-- Live conversation ingestion (via a replaceable `ConversationSource`: simulation, typed input, browser mic)
+- Live conversation ingestion (via a replaceable `ConversationSource`: simulation, typed input, live audio: room microphone or browser-tab call audio, with server speech-to-text and speaker separation)
 - Objective awareness (optional session objective)
 - Conversation state (compact, live)
 - Knowledge-gap detection (explicit, deferred, weak-answer verification)
@@ -60,3 +60,6 @@
 | 2026-10-02 | Speculative research on every factual question before qualification | **Deferred** | Could cut latency but increases cost/noise; revisit with live latency data. |
 | 2026-10-02 | Browser mic input via Web Speech API | **Accepted** | Needed for live validation; behind the `ConversationSource` abstraction. |
 | 2026-10-02 | Charts in session-end view | **Rejected** | Analytics clutter; counts and lists suffice for validation. |
+| 2026-10-02 | "Audio enablement" (human request) | **Accepted as audio *input*** | Human chose better listening (room mic + call tab, speaker separation) over speaking. Directly serves gap detection. Server speech-to-text behind `SpeechToTextProvider`. |
+| 2026-10-02 | ThirdSeat speaking (private or into the meeting) | **Not built** | Not chosen by the human; speaking into the meeting stays OUT OF SCOPE FOR V0. |
+| 2026-10-02 | Native Teams/Zoom/Meet integration for audio | **Deferred** | Browser tab capture covers web calls for validation; platform bots remain FUTURE. |

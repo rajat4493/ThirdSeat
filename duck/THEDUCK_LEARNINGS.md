@@ -47,6 +47,18 @@ documented.
 3. **Gated fixtures** to test cancellation while research is in flight. Instant fixtures hid Scenario 9.
 4. **Headless UI drive with screenshots** caught nothing broken but made the UI claims evidence-backed.
 
+## Follow-up request: "audio enablement like Vera"
+
+- The request named a reference product the agent could not identify or look up. Asking one
+  structured question ("audio input, private speech, or speaking into the meeting?") avoided both
+  guessing and silently breaking a SCOPE rule (no speaking into the meeting). **Lesson: when a request
+  references an unknown product, translate it into options that map onto existing scope lines.**
+- Asking *where* the live test happens (room vs call) changed the design (two-channel capture with
+  separate mic/call labels), which in turn preserves the engine's "another person answered" signal.
+- Unreachable vendor ≠ untestable. A stand-in speaking the vendor's wire protocol, plus a real
+  browser with fake devices, proved everything except recognition accuracy. The ledger tier 🟡 kept
+  that boundary honest.
+
 ## Suggested changes to TheDuck templates
 
 - Add an "**Environment capabilities**" section to AGENT_SPEC: credentials, network egress, runtime.
@@ -54,3 +66,4 @@ documented.
 - Use status levels in VERIFICATION_LEDGER (✅ verified / 🟡 fakes only / ⛔ not verified). The
   middle tier stops "tested" being over-claimed.
 - Require HUMAN_SUMMARY to have a "What is mocked?" section. It forces honesty about fixtures.
+- Add "**Reference products named by the human**" to the ambiguity pass: name what is being borrowed (input? output? UX?) before building.

@@ -4,7 +4,7 @@
 > **Status legend:** ✅ verified (evidence in repo) · 🟡 implemented, verified only with fakes/fixtures ·
 > ⛔ not verified / not done. Do not claim anything that is not ✅ without saying so.
 
-Last updated: 2026-10-02 (initial V0 build).
+Last updated: 2026-10-02 (V0 build + live audio input).
 
 ## Core loop
 
@@ -52,7 +52,13 @@ Last updated: 2026-10-02 (initial V0 build).
 | # | Claim | Status | Evidence |
 |---|---|---|---|
 | 27 | Create session with optional objective + source URLs; live typed input; simulated conversation; cards with Use / Open source / Research more / Mark resolved / Dismiss; feedback flags; session-end validation view with human form | ✅ | Playwright drive: `docs/evidence/ui-01…05*.png`, 0 page errors |
-| 28 | Browser microphone input | ⛔ | Implemented (Web Speech API) but not testable headless. Must be checked manually in Chrome before the live test. |
+| 28 | Browser built-in speech recognition fallback (Chrome Web Speech API) | ⛔ | Implemented, not testable headless. Check manually in Chrome. |
+| 28a | Room audio: browser captures the microphone, encodes 16 kHz PCM, streams it to the server, which forwards it to speech-to-text; speaker-separated utterances drive the engine and UI | ✅ (pipeline) | `scripts/e2e-audio-browser.ts` → `docs/evidence/e2e-audio-browser.json`, `audio-02-listening-room.png`: real Chromium, fake mic device, 186 KB real audio received, "Speaker 1/2" utterances, gap card created. |
+| 28b | Call audio: microphone on channel 0 + shared call tab on channel 1 (multichannel), labelled Mic/Call | ✅ (pipeline) | Same record, call mode: a real tab playing audio was captured; non-silent samples on **both** channels (7,946 / 3,360); "Call 1 / Mic 1 / Call 2"; gap card created. `audio-02-listening-call.png` |
+| 28c | Deepgram protocol handling: auth header, query parameters (linear16, diarize, multichannel, interim), interim captions, final + speech_final → utterances, UtteranceEnd, KeepAlive, CloseStream | 🟡 | `tests/audio.test.ts` against a stand-in server speaking Deepgram's protocol. **Not run against the real Deepgram service** (unreachable from the build environment). |
+| 28d | Real transcription accuracy, diarization quality, and transcription latency | ⛔ | Needs a real `DEEPGRAM_API_KEY` run. Transcription latency is recorded per utterance (report → `audio.transcriptionLatencyMs`) and included in time-to-intervention, because utterances are stamped with *speech* time. |
+| 28e | Mic echo of the call is dropped in call mode | 🟡 | Unit test with scripted echo. Only text-similarity based; headphones remain the recommendation. |
+| 28f | Speech-to-text key never reaches the browser; speech content not logged; audio endpoint refuses (503) when speech-to-text is off | ✅ | `tests/audio.test.ts` server test |
 | 29 | API keys never sent to the client | ✅ | `tests/server.test.ts` checks `/api/config`; key only read by the server SDK |
 | 30 | Server logs do not contain utterance text by default | ✅ | `tests/server.test.ts` |
 | 31 | Session-end report excludes the transcript; deleting a session removes its data | ✅ | `tests/server.test.ts` |

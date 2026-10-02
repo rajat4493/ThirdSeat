@@ -1,13 +1,19 @@
 # ThirdSeat — Human Summary
 
-> TheDuck artifact 6 of 8. Plain English. Updated 2026-10-02 after the first build.
+> TheDuck artifact 6 of 8. Plain English. Updated 2026-10-02 after adding live audio input.
 
 ## What does the product currently do?
 
 You open ThirdSeat in a browser, optionally type what the conversation is meant to achieve
 (the *objective*), and optionally paste links to documents worth checking (vendor docs,
-for example). Then you talk. The conversation gets into ThirdSeat by typing, by Chrome's
-microphone, or from a scripted rehearsal.
+for example). Then you talk. ThirdSeat can **listen**:
+
+- **In a room:** it uses the laptop microphone and tells the speakers apart ("Speaker 1", "Speaker 2").
+  Click a name to rename it.
+- **On a video call** (Teams, Zoom or Meet in a browser tab): it hears your microphone *and* the call
+  tab, so it knows what you said versus what the others said.
+
+You see live captions while people speak. Typing and scripted rehearsals still work too.
 
 While you talk, ThirdSeat:
 
@@ -41,7 +47,7 @@ does not include the transcript.
 
 ## What actually works (proven)
 
-- All 10 required behaviours, as repeatable automated tests (31 tests, all passing).
+- All 10 required behaviours, as repeatable automated tests (36 tests in total, all passing).
 - A real end-to-end run with no faked answers: a question in the conversation became a gap.
   ThirdSeat fetched the official Microsoft docs live, quoted the relevant passage, and showed it
   about 0.3 seconds after the question was left unanswered. Every quoted passage was checked
@@ -49,7 +55,15 @@ does not include the transcript.
 - Timing is measured for every gap, and every card shows it.
 - The UI works end to end (screenshots in `docs/evidence/`).
 
+- **Audio listening works from microphone to card.** In a real browser, microphone audio and call-tab
+  audio were captured, sent to the server, split by speaker and turned into gap cards.
+
 ## What is mocked?
+
+- **The speech recognition itself.** The transcription service (Deepgram) can't be reached from the
+  build environment, so the audio tests use a stand-in that speaks the same protocol and plays back
+  a script. Everything around it is real: capturing, encoding, streaming, speaker separation and
+  what happens next. How well real speech gets transcribed is **not yet known**.
 
 - The scenario tests use **fake research results** (marked "FIXTURE") so they run the same way
   every time. They prove the *behaviour*, not the *research quality*.
@@ -65,8 +79,11 @@ does not include the transcript.
   passage was about Teams *live events* when the question was about *live transcripts*.
   ThirdSeat labels these "UNVERIFIED — keywords only", but a person still has to read them.
 - **Public web search needs the AI mode**, which hasn't been tried live yet.
-- **The microphone** works only in Chrome. It sends audio to Google's speech service and can't tell
-  speakers apart. It hasn't been tried yet.
+- **Real audio needs a transcription account** (Deepgram key). Without one, room listening falls back
+  to Chrome's built-in recognition (no speaker names, audio goes to Google), and call listening isn't
+  available.
+- On calls without headphones the microphone also hears the call. ThirdSeat drops obvious repeats,
+  but headphones are recommended.
 - Thresholds (how long before drift counts, how often cards may appear) are educated guesses
   until real sessions tune them.
 
@@ -85,7 +102,9 @@ Only scripted validation so far. The rehearsal behaved as intended:
 
 1. Run once with a real Anthropic key (`npm run e2e:real` with `THIRDSEAT_LLM=anthropic`). Check
    answer quality and real latency, and record them in the ledger.
-2. Check the microphone in Chrome for 5 minutes.
+2. Get a Deepgram key, run `THIRDSEAT_STT=deepgram`, and talk for 5 minutes in each setup (room
+   and call). Check how accurate the words are, whether the speaker split is right, and the
+   transcription delay shown in the session report.
 3. Run the first real 30–60 minute two-person whiteboarding session in AI mode, with an
    objective set. Fill in the validation form, and record honestly what helped and what got in
    the way.

@@ -15,6 +15,10 @@ import { AnthropicLlmClient, DEFAULT_MODEL } from '../llm/anthropic-client.ts';
 import type { LlmClient } from '../llm/client.ts';
 import { loadLocalDocs, type SourceDoc } from '../research/tools/supplied-sources.ts';
 import type { EngineEvent } from '../gaps/engine.ts';
+import { WebSocketServer } from 'ws';
+import { DeepgramStt } from '../audio/deepgram.ts';
+import type { SpeechToTextProvider } from '../audio/stt.ts';
+import { AudioConversationSource } from '../conversation/audio-source.ts';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const WEB = join(ROOT, 'web');
@@ -31,15 +35,30 @@ const webSearch = process.env.THIRDSEAT_WEB_SEARCH !== '0';
 const localDocs: SourceDoc[] = process.env.THIRDSEAT_DOCS_DIR ? await loadLocalDocs(process.env.THIRDSEAT_DOCS_DIR) : [];
 const scenarios = await loadScenarios(join(ROOT, 'scenarios'));
 
+// Server-side speech-to-text is opt-in because it sends meeting audio to an external service.
+const sttMode = (process.env.THIRDSEAT_STT ?? 'off').toLowerCase();
+const stt: SpeechToTextProvider | undefined =
+  sttMode === 'deepgram'
+    ? new DeepgramStt({
+        apiKey: process.env.DEEPGRAM_API_KEY ?? '',
+        url: process.env.THIRDSEAT_STT_URL,
+        model: process.env.THIRDSEAT_STT_MODEL,
+        language: process.env.THIRDSEAT_STT_LANGUAGE,
+      })
+    : undefined;
+if (stt && !process.env.DEEPGRAM_API_KEY) console.warn('[thirdseat] THIRDSEAT_STT=deepgram but DEEPGRAM_API_KEY is not set');
+
 interface LiveSession {
   session: Session;
   built: BuiltEngine;
   source: ManualConversationSource;
   simulation?: ConversationSource;
+  audio?: AudioConversationSource;
   clients: Set<ServerResponse>;
   timer: NodeJS.Timeout;
   lastActivity: number;
   humanValidation?: Record<string, string>;
+  audioStats: { provider?: string; bytes: number; sttLatencyMs: number[] };
 }
 
 const sessions = new Map<string, LiveSession>();
@@ -93,6 +112,7 @@ function createSession(body: Record<string, unknown>): LiveSession {
     clients: new Set(),
     timer: setInterval(() => built.engine.tick(), 1000),
     lastActivity: Date.now(),
+    audioStats: { bytes: 0, sttLatencyMs: [] },
   };
   source.start((u) => built.engine.ingest(u));
   built.engine.on((e) => broadcast(live, e));
@@ -126,6 +146,7 @@ function deleteSession(id: string): void {
   if (!live) return;
   clearInterval(live.timer);
   live.simulation?.stop();
+  void live.audio?.close();
   live.built.engine.stop();
   for (const c of live.clients) c.end();
   sessions.delete(id); // transcript and state are dropped with the session
@@ -161,6 +182,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (method === 'GET' && parts[1] === 'config') {
     return send(res, 200, {
       llm: llm ? { id: llm.id, webSearch } : null,
+      stt: stt ? { id: stt.id } : null,
       localDocs: localDocs.length,
       scenarios: scenarios.map((s) => ({ id: s.id, title: s.title, description: s.description, objective: s.objective, sourceUrls: s.sourceUrls ?? [] })),
     });
@@ -240,12 +262,26 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (b.humanValidation && typeof b.humanValidation === 'object') {
       live.humanValidation = Object.fromEntries(Object.entries(b.humanValidation as Record<string, unknown>).map(([k, v]) => [k.slice(0, 80), str(v, 4000)]));
     }
-    return send(res, 200, buildReport(engine, { analyzer: live.built.analyzerId, tools: live.built.tools.map((t) => t.id), now: Date.now(), humanValidation: live.humanValidation }));
+    if (live.audio) {
+      live.audioStats.sttLatencyMs.push(...live.audio.sttLatencyMs.splice(0));
+      await live.audio.close();
+      live.audio = undefined;
+    }
+    return send(res, 200, report(live));
   }
-  if (method === 'GET' && sub === 'report') {
-    return send(res, 200, buildReport(engine, { analyzer: live.built.analyzerId, tools: live.built.tools.map((t) => t.id), now: Date.now(), humanValidation: live.humanValidation }));
-  }
+  if (method === 'GET' && sub === 'report') return send(res, 200, report(live));
   return send(res, 404, { error: 'not found' });
+}
+
+function report(live: LiveSession) {
+  const r = buildReport(live.built.engine, { analyzer: live.built.analyzerId, tools: live.built.tools.map((t) => t.id), now: Date.now(), humanValidation: live.humanValidation });
+  const lat = [...live.audioStats.sttLatencyMs, ...(live.audio?.sttLatencyMs ?? [])].sort((a, b) => a - b);
+  return {
+    ...r,
+    audio: live.audioStats.provider
+      ? { provider: live.audioStats.provider, bytesReceived: live.audioStats.bytes, transcriptionLatencyMs: { n: lat.length, median: lat[Math.floor(lat.length / 2)], p90: lat[Math.floor(lat.length * 0.9)] } }
+      : null,
+  };
 }
 
 const server = createServer((req, res) => {
@@ -255,8 +291,70 @@ const server = createServer((req, res) => {
   });
 });
 
+// Live audio: binary frames of 16-bit PCM (interleaved if 2 channels); text frame {"type":"stop"} ends the stream.
+const wss = new WebSocketServer({ noServer: true, maxPayload: 1_000_000 });
+server.on('upgrade', (req, socket, head) => {
+  const url = new URL(req.url ?? '/', 'http://localhost');
+  const m = url.pathname.match(/^\/api\/sessions\/([^/]+)\/audio$/);
+  const live = m ? sessions.get(m[1]) : undefined;
+  if (!live || !stt) {
+    socket.write(`HTTP/1.1 ${live ? 503 : 404} ${live ? 'Speech-to-text not configured' : 'Not Found'}\r\n\r\n`);
+    return socket.destroy();
+  }
+  wss.handleUpgrade(req, socket, head, (ws) => void attachAudio(live, ws, url));
+});
+
+async function attachAudio(live: LiveSession, ws: import('ws').WebSocket, url: URL): Promise<void> {
+  const channels = url.searchParams.get('channels') === '2' ? 2 : 1;
+  const sampleRate = Math.min(48_000, Math.max(8_000, Number(url.searchParams.get('sampleRate')) || 16_000));
+  await live.audio?.close();
+  const status = (state: string, message?: string) => ws.readyState === ws.OPEN && ws.send(JSON.stringify({ type: 'status', state, message }));
+  const source = new AudioConversationSource({
+    provider: stt!,
+    clock: realClock,
+    sampleRate,
+    channels,
+    onCaption: (c) => {
+      const payload = `event: caption\ndata: ${JSON.stringify(c)}\n\n`;
+      for (const client of live.clients) client.write(payload);
+    },
+    onError: (e) => {
+      log(`${live.session.id} speech-to-text error: ${e.message}`);
+      status('error', e.message);
+    },
+  });
+  try {
+    await source.open();
+  } catch (e) {
+    status('error', (e as Error).message);
+    log(`${live.session.id} speech-to-text failed to open: ${(e as Error).message}`);
+    return ws.close();
+  }
+  live.audio = source;
+  live.audioStats.provider = stt!.id;
+  source.start((u) => live.built.engine.ingest(u));
+  status('listening');
+  log(`${live.session.id} audio stream open (${channels} ch @ ${sampleRate} Hz, ${stt!.id})`);
+  ws.on('message', (data, isBinary) => {
+    if (isBinary) {
+      const buf = Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
+      live.audioStats.bytes += buf.length;
+      source.pushAudio(buf);
+    } else if (String(data).includes('"stop"')) {
+      void source.close().then(() => ws.close());
+    }
+  });
+  ws.on('close', () => {
+    live.audioStats.sttLatencyMs.push(...source.sttLatencyMs.splice(0));
+    void source.close();
+    if (live.audio === source) live.audio = undefined;
+    log(`${live.session.id} audio stream closed`);
+  });
+}
+
 server.listen(PORT, HOST, () => {
   log(`listening on http://${HOST}:${PORT}`);
   log(llm ? `LLM: ${llm.id} (conversation content is sent to Anthropic), web search: ${webSearch ? 'on' : 'off'}` : 'LLM: off — heuristic analysis + supplied sources only (set THIRDSEAT_LLM=anthropic to enable)');
   if (localDocs.length) log(`local documents loaded: ${localDocs.length}`);
+  log(stt ? `speech-to-text: ${stt.id} (meeting audio is sent to the provider)` : 'speech-to-text: off — browser speech recognition only (set THIRDSEAT_STT=deepgram to enable)');
 });

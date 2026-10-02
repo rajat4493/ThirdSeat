@@ -27,6 +27,14 @@
     <label>Sources to research in <span class="muted">(optional — one URL per line, e.g. vendor docs)</span>
       <textarea id="urls" rows="3" placeholder="https://…"></textarea>
     </label>
+    <label>Audio input
+      <select id="audioMode">
+        <option value="room">Microphone — people in the room</option>
+        <option value="call">Video call in a browser tab + my microphone</option>
+        <option value="off">No audio — I'll type</option>
+      </select>
+      <span class="muted small">For calls, use headphones so the microphone doesn't pick up the call twice.</span>
+    </label>
     <div class="row">
       <button id="startBtn" class="primary">Start live session</button>
     </div>
@@ -46,12 +54,14 @@
   <main id="live" class="live hidden">
     <section class="conversation">
       <div id="transcript" class="transcript" aria-live="polite"></div>
+      <div id="caption" class="caption"></div>
       <form id="say" class="say">
         <select id="speaker"><option>A</option><option>B</option><option>C</option><option>Room</option></select>
-        <input id="text" autocomplete="off" placeholder="Type what was said (or use the mic)…" />
+        <input id="text" autocomplete="off" placeholder="Type what was said (or press Listen)…" />
         <button type="submit">Add</button>
-        <button type="button" id="micBtn" title="Browser speech recognition (Chrome)">🎙 Mic</button>
+        <button type="button" id="micBtn">🎙 Listen</button>
       </form>
+      <div id="audioStatus" class="audio-status"></div>
       <form id="askForm" class="ask">
         <input id="ask" autocomplete="off" placeholder="Ask ThirdSeat to look something up (logged as a missed-detection signal)" />
         <button type="submit">Ask</button>
