@@ -1,0 +1,57 @@
+{
+  "id": "x03-confirmation-payments",
+  "title": "Confirmation run (fresh, different domain): all three modes",
+  "description": "Written and committed BEFORE running, after the x01 fixes. Run ONCE; no product fixes are allowed in response. Different domain (payments) to check nothing is tuned to meetings. Natural phrasing.",
+  "objective": "Choose a payments provider for the EU launch and list what blocks the choice.",
+  "lines": [
+    { "t": 0,   "s": "A", "text": "So, Stripe or Adyen for the EU launch?" },
+    { "t": 7,   "s": "B", "text": "Finance wants an answer by Friday." },
+    { "t": 15,  "s": "A", "text": "Does Adyen support SEPA Direct Debit for subscriptions?" },
+    { "t": 22,  "s": "B", "text": "Their sales rep was very responsive, at least." },
+    { "t": 30,  "s": "A", "text": "Sure, but that's not the product." },
+    { "t": 38,  "s": "B", "text": "Does Stripe charge extra for Radar fraud screening?" },
+    { "t": 43,  "s": "A", "text": "Honestly no idea, would have to look." },
+    { "t": 50,  "s": "B", "text": "Stripe takes about two days to pay out, I think." },
+    { "t": 58,  "s": "A", "text": "What happens if we pick the wrong one and need to migrate later?" },
+    { "t": 63,  "s": "B", "text": "Yeah, that would hurt." },
+    { "t": 72,  "s": "A", "text": "Is everyone okay with a quick break at eleven?" },
+    { "t": 76,  "s": "B", "text": "Works for me." },
+    { "t": 84,  "s": "A", "text": "Does Adyen's API have a sandbox for testing payouts?" },
+    { "t": 88,  "s": "B", "text": "Yes, they have a full test environment, I used it last month." },
+    { "t": 96,  "s": "A", "text": "Did Stripe raise their EU card fees this year?" },
+    { "t": 101, "s": "B", "text": "Not sure. Let's check after the meeting." },
+    { "t": 110, "s": "A", "text": "Anyway, onboarding. Both need KYC documents from us." },
+    { "t": 125, "s": "B", "text": "Adyen's onboarding took a competitor six weeks." },
+    { "t": 140, "s": "A", "text": "Stripe was a few days for us at my last company." },
+    { "t": 155, "s": "B", "text": "The integration effort looks similar for both." },
+    { "t": 170, "s": "A", "text": "So which provider do we pick?" },
+    { "t": 185, "s": "B", "text": "Where does that leave us then?" }
+  ],
+  "simulatedSearch": {
+    "note": "Simulated search results (test only), written with the answer key before running.",
+    "entries": [
+      { "key": "adyen-sepa", "match": ["adyen", "sepa"], "answer": "FIXTURE: Yes, SEPA Direct Debit is supported for recurring payments.", "confidence": "HIGH" },
+      { "key": "stripe-radar", "match": ["stripe", "radar"], "answer": "FIXTURE: Radar is included; Radar for Fraud Teams costs extra per screened transaction.", "confidence": "HIGH" },
+      { "key": "stripe-payout", "match": ["stripe", "day"], "answer": "FIXTURE: Standard EU payout schedule is a few business days; varies by country.", "confidence": "LIKELY" },
+      { "key": "adyen-sandbox", "match": ["adyen", "sandbox"], "answer": "FIXTURE: Yes, Adyen has a test environment.", "confidence": "HIGH" },
+      { "key": "stripe-fees", "match": ["stripe", "fee"], "answer": "FIXTURE: EU card pricing changed this year for some card types.", "confidence": "LIKELY", "hold": true }
+    ],
+    "releaseBeforeLine": { "20": "stripe-fees" }
+  },
+  "answerKey": {
+    "note": "0-based line indexes. A card at line N appears after line N is spoken and before N+1.",
+    "mustSurface": [
+      { "id": "P1", "trigger": 2, "type": "KNOWLEDGE", "mode": "PROACTIVE", "window": [3, 4], "why": "Unanswered factual question; nobody said they don't know." },
+      { "id": "R1", "trigger": 5, "type": "KNOWLEDGE", "mode": "REACTIVE", "window": [6, 7], "why": "'Honestly no idea, would have to look.'" },
+      { "id": "P2", "trigger": 7, "type": "KNOWLEDGE", "mode": "PROACTIVE", "window": [7, 9], "why": "Tentative claim about Stripe payouts ('… I think')." },
+      { "id": "T1", "trigger": 8, "type": "OPEN_THREAD", "mode": "RETROACTIVE", "window": [20, 21], "why": "Migration-risk question dropped after 'that would hurt'; relevant when they pick a provider." },
+      { "id": "L1", "trigger": 14, "type": "KNOWLEDGE", "mode": "RETROACTIVE", "window": [19, 20], "why": "Deferred question; slow lookup finishes after line 19 → 'Back to …'." },
+      { "id": "C1", "trigger": 21, "type": "DECISION", "mode": "RETROACTIVE", "window": [21, 21], "why": "'Where does that leave us then?' with open items." }
+    ],
+    "mustNotSurface": [
+      { "id": "N1", "trigger": 10, "expectNoGap": true, "why": "Social/logistics question about a break." },
+      { "id": "N2", "trigger": 12, "expectStatus": "NATURALLY_RESOLVED", "why": "Answered confidently 4 s later." }
+    ],
+    "noOtherCards": true
+  }
+}
