@@ -1,0 +1,453 @@
+{
+  "ranAt": "2026-10-04T11:05:27.218Z",
+  "results": [
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "Hmm, couldn't tell you offhand.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "No clue.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "I genuinely don't know.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "Beats me.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "Not a clue, sorry.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "I have no idea, honestly.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "Haven't the faintest.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "That I don't know.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "Good question, I don't know.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "dev",
+      "text": "I'm drawing a blank.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Your guess is as good as mine.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "No idea off the top of my head.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "I really couldn't say.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Hmm, not something I know.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "I'd be guessing.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Pass.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Don't ask me!",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "I'm not the right person to answer that.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Honestly I have no clue.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "UNCERTAIN",
+      "split": "heldout",
+      "text": "Not sure, to be honest.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "dev",
+      "text": "Let's look into it after this call.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "dev",
+      "text": "I'll check and get back to you.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "dev",
+      "text": "Let's take that offline.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "dev",
+      "text": "Can someone find out after the meeting?",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "dev",
+      "text": "Let's park that for now and check later.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "heldout",
+      "text": "I'll dig into it tomorrow.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "heldout",
+      "text": "Let me find out and report back.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "heldout",
+      "text": "We should verify that afterwards.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "heldout",
+      "text": "Add it to the follow-ups.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "DEFERRAL",
+      "split": "heldout",
+      "text": "I'll ping the vendor about it.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "WEAK",
+      "split": "dev",
+      "text": "I think so.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "dev",
+      "text": "Probably, yeah.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "dev",
+      "text": "I believe it does.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "dev",
+      "text": "Should be fine, I think.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "dev",
+      "text": "Pretty sure it does.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "heldout",
+      "text": "I'd assume so.",
+      "expected": "REACTIVE",
+      "actual": "PROACTIVE (later)",
+      "pass": false
+    },
+    {
+      "category": "WEAK",
+      "split": "heldout",
+      "text": "If I remember right, yes.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "heldout",
+      "text": "Last I checked it did, but that was a while ago.",
+      "expected": "REACTIVE",
+      "actual": "NONE",
+      "pass": false
+    },
+    {
+      "category": "WEAK",
+      "split": "heldout",
+      "text": "Maybe? I think they added it.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "WEAK",
+      "split": "heldout",
+      "text": "I'm fairly sure it does.",
+      "expected": "REACTIVE",
+      "actual": "REACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CONFIDENT",
+      "split": "dev",
+      "text": "Yes, we use it in production.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "CONFIDENT",
+      "split": "dev",
+      "text": "No, they removed it last year, I read the changelog.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "CONFIDENT",
+      "split": "heldout",
+      "text": "Yep, it does — I built an integration on it.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "CONFIDENT",
+      "split": "heldout",
+      "text": "Definitely, it's in their docs.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "dev",
+      "text": "Meet probably caps add-ons at a hundred participants, I think.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "dev",
+      "text": "I think Zoom charges extra for the media streams.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "dev",
+      "text": "Slack probably doesn't allow bots in huddles.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "dev",
+      "text": "I believe Teams limits bots to one per meeting.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "heldout",
+      "text": "Zoom's API is rate-limited to something like ten calls a second, I think.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "heldout",
+      "text": "If I remember right, Meet add-ons need Workspace admin approval.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "CLAIM",
+      "split": "heldout",
+      "text": "Notion probably has a webhook for that.",
+      "expected": "PROACTIVE",
+      "actual": "NONE",
+      "pass": false
+    },
+    {
+      "category": "CLAIM",
+      "split": "heldout",
+      "text": "I assume Webex has a similar API.",
+      "expected": "PROACTIVE",
+      "actual": "PROACTIVE",
+      "pass": true
+    },
+    {
+      "category": "NON_CLAIM",
+      "split": "dev",
+      "text": "I think we should start with Zoom.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "NON_CLAIM",
+      "split": "dev",
+      "text": "Probably the onboarding needs work.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "NON_CLAIM",
+      "split": "heldout",
+      "text": "I guess customers will like it.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    },
+    {
+      "category": "NON_CLAIM",
+      "split": "heldout",
+      "text": "Maybe we ship in March.",
+      "expected": "NONE",
+      "actual": "NONE",
+      "pass": true
+    }
+  ]
+}

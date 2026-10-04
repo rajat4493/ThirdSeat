@@ -4,61 +4,383 @@
   "description": "One natural conversation mixing all three timing modes with negative controls. Written with its answer key BEFORE the run; phrasing was written as natural speech, not to match ThirdSeat's phrase lists.",
   "objective": "Decide whether to build the first version on Zoom or Google Meet, and name what blocks that decision.",
   "lines": [
-    { "t": 0,   "s": "A", "text": "Okay, goal for today: Zoom or Meet first for the pilot." },
-    { "t": 6,   "s": "B", "text": "Most of the pilot customers are on Google Workspace, for what it's worth." },
-    { "t": 14,  "s": "A", "text": "Does Google Meet's API give apps live captions during a call?" },
-    { "t": 21,  "s": "B", "text": "Workspace admins also tend to be stricter about add-ons." },
-    { "t": 28,  "s": "A", "text": "True, the approval flow there can take weeks." },
-    { "t": 36,  "s": "B", "text": "Does Zoom support OAuth for marketplace apps?" },
-    { "t": 40,  "s": "A", "text": "Yes, every Zoom marketplace app uses OAuth, I shipped one last year." },
-    { "t": 48,  "s": "B", "text": "Makes sense, right?" },
-    { "t": 52,  "s": "A", "text": "Yeah." },
-    { "t": 58,  "s": "A", "text": "What's the per-minute price of Zoom's real-time media streams?" },
-    { "t": 63,  "s": "B", "text": "Hmm, couldn't tell you offhand." },
-    { "t": 70,  "s": "A", "text": "Meet probably caps add-ons at a hundred participants, I think." },
-    { "t": 78,  "s": "B", "text": "Why would a team pay for this when Zoom's AI Companion is already included?" },
-    { "t": 83,  "s": "A", "text": "Good question." },
-    { "t": 90,  "s": "B", "text": "Let's park pricing and talk about the build itself." },
-    { "t": 98,  "s": "A", "text": "Can you see my screen?" },
-    { "t": 101, "s": "B", "text": "Yep." },
-    { "t": 106, "s": "A", "text": "Do we have budget for a contractor this quarter?" },
-    { "t": 110, "s": "B", "text": "Not sure, I'd have to ask finance." },
-    { "t": 118, "s": "A", "text": "Is Zoom's real-time media streams feature generally available or still in beta?" },
-    { "t": 123, "s": "B", "text": "No clue, let's look into it after this call." },
-    { "t": 132, "s": "A", "text": "Anyone know whether Meet add-ons work on the mobile app?" },
-    { "t": 140, "s": "B", "text": "What about the security review?" },
-    { "t": 146, "s": "A", "text": "Security will want a data-flow diagram either way." },
-    { "t": 155, "s": "B", "text": "Does Meet expose speaker names in the captions feed?" },
-    { "t": 160, "s": "A", "text": "No idea." },
-    { "t": 168, "s": "B", "text": "Does Zoom let us store recordings in our own S3 bucket?" },
-    { "t": 173, "s": "A", "text": "Not sure." },
-    { "t": 178, "s": "B", "text": "Actually yes, Zoom supports custom S3 storage for recordings on enterprise plans, we set it up at my last job." },
-    { "t": 200, "s": "A", "text": "The Zoom side looks technically doable." },
-    { "t": 215, "s": "B", "text": "Agreed, the media streams API covers what we need." },
-    { "t": 230, "s": "A", "text": "So which one do we build first?" },
-    { "t": 250, "s": "B", "text": "Meet has the customers, Zoom has the better API." },
-    { "t": 265, "s": "A", "text": "So where does that leave us?" }
+    {
+      "t": 0,
+      "s": "A",
+      "text": "Okay, goal for today: Zoom or Meet first for the pilot."
+    },
+    {
+      "t": 6,
+      "s": "B",
+      "text": "Most of the pilot customers are on Google Workspace, for what it's worth."
+    },
+    {
+      "t": 14,
+      "s": "A",
+      "text": "Does Google Meet's API give apps live captions during a call?"
+    },
+    {
+      "t": 21,
+      "s": "B",
+      "text": "Workspace admins also tend to be stricter about add-ons."
+    },
+    {
+      "t": 28,
+      "s": "A",
+      "text": "True, the approval flow there can take weeks."
+    },
+    {
+      "t": 36,
+      "s": "B",
+      "text": "Does Zoom support OAuth for marketplace apps?"
+    },
+    {
+      "t": 40,
+      "s": "A",
+      "text": "Yes, every Zoom marketplace app uses OAuth, I shipped one last year."
+    },
+    {
+      "t": 48,
+      "s": "B",
+      "text": "Makes sense, right?"
+    },
+    {
+      "t": 52,
+      "s": "A",
+      "text": "Yeah."
+    },
+    {
+      "t": 58,
+      "s": "A",
+      "text": "What's the per-minute price of Zoom's real-time media streams?"
+    },
+    {
+      "t": 63,
+      "s": "B",
+      "text": "Hmm, couldn't tell you offhand."
+    },
+    {
+      "t": 70,
+      "s": "A",
+      "text": "Meet probably caps add-ons at a hundred participants, I think."
+    },
+    {
+      "t": 78,
+      "s": "B",
+      "text": "Why would a team pay for this when Zoom's AI Companion is already included?"
+    },
+    {
+      "t": 83,
+      "s": "A",
+      "text": "Good question."
+    },
+    {
+      "t": 90,
+      "s": "B",
+      "text": "Let's park pricing and talk about the build itself."
+    },
+    {
+      "t": 98,
+      "s": "A",
+      "text": "Can you see my screen?"
+    },
+    {
+      "t": 101,
+      "s": "B",
+      "text": "Yep."
+    },
+    {
+      "t": 106,
+      "s": "A",
+      "text": "Do we have budget for a contractor this quarter?"
+    },
+    {
+      "t": 110,
+      "s": "B",
+      "text": "Not sure, I'd have to ask finance."
+    },
+    {
+      "t": 118,
+      "s": "A",
+      "text": "Is Zoom's real-time media streams feature generally available or still in beta?"
+    },
+    {
+      "t": 123,
+      "s": "B",
+      "text": "No clue, let's look into it after this call."
+    },
+    {
+      "t": 132,
+      "s": "A",
+      "text": "Anyone know whether Meet add-ons work on the mobile app?"
+    },
+    {
+      "t": 140,
+      "s": "B",
+      "text": "What about the security review?"
+    },
+    {
+      "t": 146,
+      "s": "A",
+      "text": "Security will want a data-flow diagram either way."
+    },
+    {
+      "t": 155,
+      "s": "B",
+      "text": "Does Meet expose speaker names in the captions feed?"
+    },
+    {
+      "t": 160,
+      "s": "A",
+      "text": "No idea."
+    },
+    {
+      "t": 168,
+      "s": "B",
+      "text": "Does Zoom let us store recordings in our own S3 bucket?"
+    },
+    {
+      "t": 173,
+      "s": "A",
+      "text": "Not sure."
+    },
+    {
+      "t": 178,
+      "s": "B",
+      "text": "Actually yes, Zoom supports custom S3 storage for recordings on enterprise plans, we set it up at my last job."
+    },
+    {
+      "t": 200,
+      "s": "A",
+      "text": "The Zoom side looks technically doable."
+    },
+    {
+      "t": 215,
+      "s": "B",
+      "text": "Agreed, the media streams API covers what we need."
+    },
+    {
+      "t": 230,
+      "s": "A",
+      "text": "So which one do we build first?"
+    },
+    {
+      "t": 250,
+      "s": "B",
+      "text": "Meet has the customers, Zoom has the better API."
+    },
+    {
+      "t": 265,
+      "s": "A",
+      "text": "So where does that leave us?"
+    }
   ],
   "answerKey": {
     "note": "Line numbers are 0-based indexes into lines. A card 'surfaces at line N' means it appears after line N is spoken and before line N+1. Windows allow for the 20 s cooldown between cards.",
     "mustSurface": [
-      { "id": "P1", "trigger": 2, "type": "KNOWLEDGE", "mode": "PROACTIVE", "window": [3, 5], "why": "Question nobody answered; nobody said 'not sure'. Answer prepared in advance should appear after the grace period." },
-      { "id": "R1", "trigger": 9, "type": "KNOWLEDGE", "mode": "REACTIVE", "window": [10, 11], "why": "'Hmm, couldn't tell you offhand' is uncertainty (natural phrasing)." },
-      { "id": "P2", "trigger": 11, "type": "KNOWLEDGE", "mode": "PROACTIVE", "window": [11, 14], "why": "Tentative claim about Meet ('probably … I think') checked unprompted." },
-      { "id": "P3", "trigger": 21, "type": "KNOWLEDGE", "mode": "PROACTIVE", "window": [21, 23], "why": "Question asked to the room ('Anyone know whether…')." },
-      { "id": "T1", "trigger": 12, "type": "OPEN_THREAD", "mode": "RETROACTIVE", "window": [31, 32], "why": "Strategic question acknowledged ('Good question') and dropped; recall when they decide which to build." },
-      { "id": "L1", "trigger": 19, "type": "KNOWLEDGE", "mode": "RETROACTIVE", "window": [32, 33], "why": "Deferred question whose research is slow (released just before line 32) → framed 'Back to …'." },
-      { "id": "C1", "trigger": 33, "type": "DECISION", "mode": "RETROACTIVE", "window": [33, 33], "why": "'So where does that leave us?' with open items → list blockers." }
+      {
+        "id": "P1",
+        "trigger": 2,
+        "type": "KNOWLEDGE",
+        "mode": "PROACTIVE",
+        "window": [
+          3,
+          5
+        ],
+        "why": "Question nobody answered; nobody said 'not sure'. Answer prepared in advance should appear after the grace period."
+      },
+      {
+        "id": "R1",
+        "trigger": 9,
+        "type": "KNOWLEDGE",
+        "mode": "REACTIVE",
+        "window": [
+          10,
+          11
+        ],
+        "why": "'Hmm, couldn't tell you offhand' is uncertainty (natural phrasing)."
+      },
+      {
+        "id": "P2",
+        "trigger": 11,
+        "type": "KNOWLEDGE",
+        "mode": "PROACTIVE",
+        "window": [
+          11,
+          14
+        ],
+        "why": "Tentative claim about Meet ('probably … I think') checked unprompted."
+      },
+      {
+        "id": "P3",
+        "trigger": 21,
+        "type": "KNOWLEDGE",
+        "mode": "PROACTIVE",
+        "window": [
+          21,
+          23
+        ],
+        "why": "Question asked to the room ('Anyone know whether…')."
+      },
+      {
+        "id": "T1",
+        "trigger": 12,
+        "type": "OPEN_THREAD",
+        "mode": "RETROACTIVE",
+        "window": [
+          31,
+          32
+        ],
+        "why": "Strategic question acknowledged ('Good question') and dropped; recall when they decide which to build."
+      },
+      {
+        "id": "L1",
+        "trigger": 19,
+        "type": "KNOWLEDGE",
+        "mode": "RETROACTIVE",
+        "window": [
+          31,
+          32
+        ],
+        "why": "Deferred question whose research is slow (released just before line 32) → framed 'Back to …'.",
+        "keyCorrection": "Run 1: window was [32,33], which contradicted the test's own release schedule (the slow lookup finishes after line 31 is spoken, i.e. before line 32). Corrected to [31,32]. Product output for L1 was unchanged between runs."
+      },
+      {
+        "id": "C1",
+        "trigger": 33,
+        "type": "DECISION",
+        "mode": "RETROACTIVE",
+        "window": [
+          33,
+          33
+        ],
+        "why": "'So where does that leave us?' with open items → list blockers."
+      }
     ],
     "mustNotSurface": [
-      { "id": "N1", "trigger": 5, "expectStatus": "NATURALLY_RESOLVED", "why": "Answered confidently by a human 4 s later." },
-      { "id": "N2", "trigger": 7, "expectNoGap": true, "why": "Rhetorical 'Makes sense, right?'." },
-      { "id": "N3", "trigger": 15, "expectNoGap": true, "why": "Social 'Can you see my screen?'." },
-      { "id": "N4", "trigger": 17, "expectStatus": "OPEN", "expectResearchable": false, "why": "Internal question (budget) — cannot be researched publicly; track quietly." },
-      { "id": "N5", "trigger": 22, "expectNoGap": true, "why": "Topic proposal 'What about the security review?'." },
-      { "id": "N6", "trigger": 24, "expectStatus": "UNRESOLVED", "why": "No source has the answer → no fabricated answer, no card." },
-      { "id": "N7", "trigger": 26, "expectStatus": "NATURALLY_RESOLVED", "expectResearchCancelled": true, "why": "Research still running when a human answers credibly." }
+      {
+        "id": "N1",
+        "trigger": 5,
+        "expectStatus": "NATURALLY_RESOLVED",
+        "why": "Answered confidently by a human 4 s later."
+      },
+      {
+        "id": "N2",
+        "trigger": 7,
+        "expectNoGap": true,
+        "why": "Rhetorical 'Makes sense, right?'."
+      },
+      {
+        "id": "N3",
+        "trigger": 15,
+        "expectNoGap": true,
+        "why": "Social 'Can you see my screen?'."
+      },
+      {
+        "id": "N4",
+        "trigger": 17,
+        "expectStatus": "OPEN",
+        "expectResearchable": false,
+        "why": "Internal question (budget) — cannot be researched publicly; track quietly."
+      },
+      {
+        "id": "N5",
+        "trigger": 22,
+        "expectNoGap": true,
+        "why": "Topic proposal 'What about the security review?'."
+      },
+      {
+        "id": "N6",
+        "trigger": 24,
+        "expectStatus": "UNRESOLVED",
+        "why": "No source has the answer → no fabricated answer, no card."
+      },
+      {
+        "id": "N7",
+        "trigger": 26,
+        "expectStatus": "NATURALLY_RESOLVED",
+        "expectResearchCancelled": true,
+        "why": "Research still running when a human answers credibly."
+      }
     ],
     "noOtherCards": true
+  },
+  "simulatedSearch": {
+    "note": "Simulated search results (test only), defined with the answer key. 'hold' = slow lookup released per schedule.",
+    "entries": [
+      {
+        "key": "meet-captions",
+        "match": [
+          "meet",
+          "live",
+          "caption"
+        ],
+        "answer": "FIXTURE: Meet Media API gives apps real-time media (Developer Preview).",
+        "confidence": "HIGH"
+      },
+      {
+        "key": "zoom-oauth",
+        "match": [
+          "zoom",
+          "oauth"
+        ],
+        "answer": "FIXTURE: Yes, Marketplace apps use OAuth 2.0.",
+        "confidence": "HIGH"
+      },
+      {
+        "key": "zoom-price",
+        "match": [
+          "zoom",
+          "price"
+        ],
+        "answer": "FIXTURE: Usage-based; per-minute pricing listed on the RTMS page.",
+        "confidence": "HIGH"
+      },
+      {
+        "key": "meet-participants",
+        "match": [
+          "meet",
+          "participant"
+        ],
+        "answer": "FIXTURE: No documented 100-participant cap for add-ons.",
+        "confidence": "LIKELY"
+      },
+      {
+        "key": "zoom-beta",
+        "match": [
+          "zoom",
+          "beta"
+        ],
+        "answer": "FIXTURE: RTMS is generally available.",
+        "confidence": "HIGH",
+        "hold": true
+      },
+      {
+        "key": "meet-mobile",
+        "match": [
+          "meet",
+          "mobile"
+        ],
+        "answer": "FIXTURE: Meet add-ons are desktop-only.",
+        "confidence": "HIGH"
+      },
+      {
+        "key": "zoom-s3",
+        "match": [
+          "zoom",
+          "s3"
+        ],
+        "answer": "FIXTURE: Custom S3 storage is supported on some plans.",
+        "confidence": "HIGH",
+        "hold": true
+      }
+    ],
+    "releaseBeforeLine": {
+      "32": "zoom-beta"
+    },
+    "releaseAfterLine": {
+      "28": "zoom-s3"
+    },
+    "cancelledKey": "zoom-s3"
   }
 }

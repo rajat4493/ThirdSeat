@@ -70,6 +70,17 @@ documented.
 - Without AI, proactive mode surfaces little, because unverified passages fall below the threshold. That is
   correct, but it means the no-AI demo under-shows the feature. Say so instead of lowering thresholds.
 
+## Rigorous test (2026-10-04)
+
+- **Commit the answer key before the run.** It made the L1 key error visible and correctable in the
+  open, instead of quietly "adjusting expectations".
+- **Fixing one bug unmasked another** (F1/F2 fixes → more cards → pacing bug F4). A passing scenario
+  hides interactions; re-run everything after every fix.
+- **A run you have fixed against is no longer evidence.** Only the fresh, single-run x03 (6/9) is
+  an unbiased number. Keep a held-out set and spend it once.
+- **Check card content, not just presence.** x03's conclusion card "passed" the key but listed a
+  coffee-break question as a blocker. Answer keys need content assertions.
+
 ## Suggested changes to TheDuck templates
 
 - Add an "**Environment capabilities**" section to AGENT_SPEC: credentials, network egress, runtime.
@@ -77,5 +88,6 @@ documented.
 - Use status levels in VERIFICATION_LEDGER (✅ verified / 🟡 fakes only / ⛔ not verified). The
   middle tier stops "tested" being over-claimed.
 - Require HUMAN_SUMMARY to have a "What is mocked?" section. It forces honesty about fixtures.
+- VERIFICATION: require one **pre-registered, single-use confirmation run** for any behavioural claim.
 - Add "**Timing stance**" (proactive / reactive / retroactive) as an explicit intent question when the product interrupts people.
 - Add "**Reference products named by the human**" to the ambiguity pass: name what is being borrowed (input? output? UX?) before building.

@@ -56,7 +56,7 @@ does not include the transcript.
 
 ## What actually works (proven)
 
-- All 10 required behaviours, as repeatable automated tests (44 tests in total, all passing).
+- All 10 required behaviours, as repeatable automated tests (45 tests in total, all passing).
 - A real end-to-end run with no faked answers: a question in the conversation became a gap.
   ThirdSeat fetched the official Microsoft docs live, quoted the relevant passage, and showed it
   about 0.3 seconds after the question was left unanswered. Every quoted passage was checked

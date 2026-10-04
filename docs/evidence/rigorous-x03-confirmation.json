@@ -1,0 +1,126 @@
+{
+  "ranAt": "2026-10-04T11:07:07.996Z",
+  "passCount": 6,
+  "total": 9,
+  "rows": [
+    {
+      "id": "P1",
+      "expected": "KNOWLEDGE card, PROACTIVE, at line 3–4",
+      "actual": "KNOWLEDGE card, PROACTIVE, at line 4 (+15 s)",
+      "pass": true,
+      "why": "Unanswered factual question; nobody said they don't know."
+    },
+    {
+      "id": "R1",
+      "expected": "KNOWLEDGE card, REACTIVE, at line 6–7",
+      "actual": "KNOWLEDGE card, REACTIVE, at line 6 (+12 s)",
+      "pass": true,
+      "why": "'Honestly no idea, would have to look.'"
+    },
+    {
+      "id": "P2",
+      "expected": "KNOWLEDGE card, PROACTIVE, at line 7–9",
+      "actual": "no card (no gap)",
+      "pass": false,
+      "why": "Tentative claim about Stripe payouts ('… I think')."
+    },
+    {
+      "id": "T1",
+      "expected": "OPEN_THREAD card, RETROACTIVE, at line 20–21",
+      "actual": "no card (gap: KNOWLEDGE/NATURALLY_RESOLVED/QUESTION_RAISED)",
+      "pass": false,
+      "why": "Migration-risk question dropped after 'that would hurt'; relevant when they pick a provider."
+    },
+    {
+      "id": "L1",
+      "expected": "KNOWLEDGE card, RETROACTIVE, at line 19–20",
+      "actual": "KNOWLEDGE card, RETROACTIVE, at line 19 (+59 s)",
+      "pass": true,
+      "why": "Deferred question; slow lookup finishes after line 19 → 'Back to …'."
+    },
+    {
+      "id": "C1",
+      "expected": "DECISION card, RETROACTIVE, at line 21–21",
+      "actual": "DECISION card, RETROACTIVE, at line 21 (+0 s)",
+      "pass": true,
+      "why": "'Where does that leave us then?' with open items."
+    },
+    {
+      "id": "N1",
+      "expected": "no gap, no card",
+      "actual": "no card; KNOWLEDGE/UNRESOLVED — unexpected gap",
+      "pass": false,
+      "why": "Social/logistics question about a break."
+    },
+    {
+      "id": "N2",
+      "expected": "no card; status NATURALLY_RESOLVED",
+      "actual": "no card; KNOWLEDGE/NATURALLY_RESOLVED",
+      "pass": true,
+      "why": "Answered confidently 4 s later."
+    },
+    {
+      "id": "X",
+      "expected": "no other cards",
+      "actual": "none",
+      "pass": true,
+      "why": "Precision: anything not in the key is a false positive."
+    }
+  ],
+  "cards": [
+    {
+      "line": 4,
+      "type": "KNOWLEDGE",
+      "mode": "PROACTIVE",
+      "text": "Looked this up while you were talking: FIXTURE: Yes, SEPA Direct Debit is supported for recurring payments."
+    },
+    {
+      "line": 6,
+      "type": "KNOWLEDGE",
+      "mode": "REACTIVE",
+      "text": "FIXTURE: Radar is included; Radar for Fraud Teams costs extra per screened transaction. Nobody in the conversation knew this."
+    },
+    {
+      "line": 19,
+      "type": "KNOWLEDGE",
+      "mode": "RETROACTIVE",
+      "text": "Back to “Did Stripe raise their EU card fees this year?” (raised 1 min ago): FIXTURE: EU card pricing changed this year for some card types."
+    },
+    {
+      "line": 21,
+      "type": "DECISION",
+      "mode": "RETROACTIVE",
+      "text": "You appear close to a conclusion. Based on the objective, these are still unresolved:\n1. Stripe or Adyen for the EU launch?\n2. Is everyone okay with a quick break at eleven?\n3. Did Stripe raise their EU card fees this year? (only partly verified)\n4 other question(s) raised were answered during the session."
+    }
+  ],
+  "researchCalls": [
+    {
+      "key": null,
+      "query": "Stripe or Adyen for the EU launch?"
+    },
+    {
+      "key": "adyen-sepa",
+      "query": "Does Adyen support SEPA Direct Debit for subscriptions?"
+    },
+    {
+      "key": "stripe-radar",
+      "query": "Does Stripe charge extra for Radar fraud screening?"
+    },
+    {
+      "key": null,
+      "query": "What happens if we pick the wrong one and need to migrate later?"
+    },
+    {
+      "key": null,
+      "query": "Is everyone okay with a quick break at eleven?"
+    },
+    {
+      "key": "adyen-sandbox",
+      "query": "Does Adyen's API have a sandbox for testing payouts?"
+    },
+    {
+      "key": "stripe-fees",
+      "query": "Did Stripe raise their EU card fees this year?"
+    }
+  ]
+}

@@ -95,7 +95,7 @@ npm start                      # http://127.0.0.1:4317
 ## 5. Development commands
 
 ```bash
-npm test                       # all tests (44): deterministic, no external network
+npm test                       # all tests (45): deterministic, no external network
 npm run typecheck              # tsc --noEmit
 npm run scenario -- all --fixtures         # replay all scenarios with fixture research, print timeline
 npm run scenario -- w01 --real-sources     # rehearsal with live-fetched official docs

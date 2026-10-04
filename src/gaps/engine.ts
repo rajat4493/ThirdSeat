@@ -65,7 +65,8 @@ export const DEFAULT_ENGINE_CONFIG: EngineConfig = {
   proactiveGraceMs: 8_000,
   proactiveGraceUtterances: 2,
   retroactiveAfterMs: 90_000,
-  activeTtlMs: 150_000,
+  // An unactioned card stops occupying attention after a minute; otherwise ignored cards block timely answers.
+  activeTtlMs: 60_000,
   policy: {},
 };
 

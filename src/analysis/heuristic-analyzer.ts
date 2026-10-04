@@ -21,11 +21,13 @@ export const DEFERRAL = [
   'come back to', 'get back to', 'well check', 'we can check', 'need to check', 'have to check', 'should check',
   'lets check', 'circle back', 'park that', 'park it', 'look into that', 'someone should check', 'worth checking',
   'need to find out', 'have to find out', 'need to verify', 'we should verify', 'ask them later', 'ill ask',
+  'take that offline', 'offline', 'after this call', 'after the call',
 ];
 export const UNCERTAIN = [
   'not sure', 'no idea', 'dont know', 'do not know', 'no clue', 'not certain', 'unclear', 'who knows',
   'cant remember', 'dont remember', 'havent checked', 'never checked', 'not clear', 'beats me', 'no one knows',
-  'nobody knows', 'i wonder', 'not a clue', 'havent a clue', 'unsure',
+  'nobody knows', 'i wonder', 'not a clue', 'havent a clue', 'unsure', 'drawing a blank', 'havent the faintest',
+  'no idea', 'couldnt tell you', 'cant tell you', 'couldnt say', 'cant say',
 ];
 export const WEAK = [
   'i think so', 'i think', 'probably', 'maybe', 'i assume', 'i guess', 'i believe', 'almost sure', 'pretty sure',
@@ -39,7 +41,7 @@ const CONFIDENT_MARKERS = [
   'for sure', 'certainly', 'it isnt', 'there isnt', 'we tested', 'ive seen it',
 ];
 export const ACKNOWLEDGE = [
-  'good point', 'good question', 'fair point', 'interesting', 'great question', 'true', 'hmm', 'thats a point',
+  'good point', 'good question', 'fair point', 'interesting', 'great question', 'true', 'thats a point',
   'valid point', 'thats fair', 'yeah good point', 'touche',
 ];
 const CONCLUSION = [
@@ -84,7 +86,7 @@ const FEASIBILITY = ['technically possible', 'technically feasible', 'we can bui
 const LEAP = ['then we should build', 'so we should build', 'lets build', 'we should build it', 'then we should do it', 'so we should do it', 'lets do it', 'then lets go', 'so lets go', 'then lets build', 'so lets just build', 'we should just build', 'then we build it', 'so we build it'];
 const OPEN_TO_ROOM = ['does anyone know', 'anyone know', 'i wonder', 'do we know', 'does anybody know', 'anybody know', 'is there anyone', 'has anyone', 'quick question for anyone'];
 // Verbs that make a hedged statement about a named thing checkable ("I think Teams exposes …").
-const CAPABILITY = /\b(supports?|allows?|exposes?|offers?|provides?|includes?|has|have|can(not|'t)?|doesn'?t|don'?t|works with|integrates? with|lets|limits?|charges?|costs?|requires?|is (available|free|limited|deprecated)|was (deprecated|announced|released))\b/i;
+const CAPABILITY = /\b(supports?|allows?|exposes?|offers?|provides?|includes?|has|have|can(not|'t)?|doesn'?t|don'?t|works with|integrates? with|lets|limits?|caps?|charges?|costs?|requires?|needs?|[a-z]+-limited|is (available|free|limited|deprecated)|was (deprecated|announced|released))\b/i;
 const ASSUMPTION = ['assume', 'assuming', 'presumably', 'lets say', 'suppose', 'take for granted', 'i bet'];
 
 function sentences(text: string): string[] {
@@ -110,6 +112,15 @@ function startsWithAny(n: string, list: readonly string[]): string | undefined {
   return list.find((p) => n === p || n.startsWith(p + ' '));
 }
 
+const SENTENCE_STARTERS = new Set(
+  (
+    'the a an this that these those it its we our us you your i my they their he she there here what which who whom whose when where why how ' +
+    'can could would should will shall may might must do does did is are was were be has have had not no yes yeah yep ok okay so and but or if ' +
+    'then also maybe probably perhaps presumably actually honestly basically anyway well right true sure good great fine let lets last next ' +
+    'any some all each every most many much more few one two first second agreed hmm um uh oh hey look see just still even only now'
+  ).split(' '),
+);
+
 /** Words that look like named things: OutSystems, AWS, SAML, Teams, S3, v2, GPT-4. */
 export function namedEntities(raw: string): string[] {
   const out: string[] = [];
@@ -121,7 +132,8 @@ export function namedEntities(raw: string): string[] {
       const allCaps = /^[A-Z0-9][A-Z0-9+#-]{1,}$/.test(clean) && /[A-Z]/.test(clean);
       const camel = /^[A-Z][a-z]+[A-Z]/.test(clean) || /^[a-z]+[A-Z]/.test(clean);
       const digit = /[A-Za-z]/.test(clean) && /\d/.test(clean);
-      const capitalised = i > 0 && /^[A-Z][a-z]/.test(clean);
+      // Sentence-initial capitals count only if the word is not ordinary sentence-starting vocabulary.
+      const capitalised = /^[A-Z][a-z]/.test(clean) && (i > 0 || !SENTENCE_STARTERS.has(clean.toLowerCase()));
       if (allCaps || camel || digit || capitalised) out.push(clean);
     });
   }
@@ -166,11 +178,22 @@ function isExternal(q: QuestionParse, raw: string): boolean {
   return !internalSubject && contentTerms(raw).length >= 3;
 }
 
+// Generic patterns (not phrase lists): an action to find something out + a later time is a deferral;
+// negated knowing/telling is uncertainty; a qualified "sure" is a hedge.
+const DEFERRAL_PATTERN = /\b(look into|check|find out|dig into|verify|follow up|get back|confirm|ask)\b[^.?!]{0,40}\b(later|after(wards)?|tomorrow|next week|offline|after (this|the) (call|meeting))\b/;
+const NEGATED_KNOWING = /\b(dont|do not|not|never|no one|nobody|couldnt|cant|cannot)\b[^.?!]{0,25}\b(know|tell|say|remember)\b/;
+const QUALIFIED_SURE = /\b(pretty|fairly|quite|almost|reasonably|mostly) (sure|certain|confident)\b/;
+
 export function classifyResponse(text: string): { kind: ResponseKind; phrase: string } | undefined {
   const n = normalise(text);
   let p: string | undefined;
   if ((p = hasAny(n, DEFERRAL))) return { kind: 'DEFERRAL', phrase: p };
+  let m: RegExpMatchArray | null;
+  if ((m = n.match(DEFERRAL_PATTERN))) return { kind: 'DEFERRAL', phrase: m[0] };
   if ((p = hasAny(n, UNCERTAIN))) return { kind: 'UNCERTAIN', phrase: p };
+  if ((m = n.match(NEGATED_KNOWING))) return { kind: 'UNCERTAIN', phrase: m[0] };
+  // Hedges outrank confident-sounding words ("I'm fairly sure it does" is not a confident answer).
+  if ((m = n.match(QUALIFIED_SURE))) return { kind: 'WEAK_ANSWER', phrase: m[0] };
   if ((p = hasAny(n, WEAK))) return { kind: 'WEAK_ANSWER', phrase: p };
   const stripped = stripFillers(text);
   if ((p = startsWithAny(stripped, CONFIDENT_START))) return { kind: 'CONFIDENT_ANSWER', phrase: p };

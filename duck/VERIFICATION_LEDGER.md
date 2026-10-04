@@ -35,6 +35,8 @@ Last updated: 2026-10-02 (V0 build + live audio input).
 | 12f | "Not sure" gets the prepared answer immediately | ✅ | timing-modes test (answer existed before the gap qualified) |
 | 12g | Late answers are framed as returning to the question | ✅ | timing-modes test (RETROACTIVE, "Back to … (raised 2 min ago)") |
 | 12h | Weak no-AI evidence does not interrupt proactively; it is listed quietly | ✅ | Live UI run against real Microsoft docs: `docs/evidence/timing-modes-live.png` (card in "open", none in "now") |
+| 12j | All three modes in one conversation, scored against a pre-committed answer key (no-AI mode) | 🟡 | `docs/evidence/RIGOROUS_TEST_REPORT.md`: x01 15/15 after fixes; **fresh unseen x03: 6/9** with a polluted conclusion card. Timing logic sound; language understanding is the weak point. |
+| 12k | Robust to natural phrasing (no-AI mode) | ⛔ | Pre-registered probes: dev 28/28, **held-out 17/28** (optimistic). Known false stand-downs remain (report F3, F7). |
 | 12i | Proactive mode helps rather than distracts in a real conversation | ⛔ | Needs live validation; watch the proactive dismiss rate in the report's per-mode counts. |
 
 ## Real research (not fixtures)
