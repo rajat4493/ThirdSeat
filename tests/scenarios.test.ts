@@ -23,13 +23,15 @@ test('S1 explicit factual question + uncertainty → gap detected → research �
   assert.ok(g.decisionLog.every((d) => d.note.length < 400), 'concise decision reasons only');
 });
 
-test('S2 question answered confidently by another human → no intervention', async () => {
+test('S2 question answered confidently by another human → no intervention (advance research discarded)', async () => {
   const { gaps, interventions, fixture } = await run('s02');
   assert.equal(interventions.length, 0);
-  assert.equal(fixture.calls.length, 0, 'no research spent');
+  assert.equal(fixture.calls.length, 1, 'researched ahead of time (proactive)…');
   const g = gaps().find((x) => x.type === 'KNOWLEDGE');
   assert.equal(g?.status, 'NATURALLY_RESOLVED');
   assert.equal(g?.reason, 'QUESTION_RAISED');
+  assert.equal(g?.timing.surfacedAt, undefined, '…but never shown, because a human answered');
+  assert.ok(g?.decisionLog.some((d) => /advance research (discarded|cancelled)/.test(d.note)));
 });
 
 test('S3 weak human answer ("I think so") → verification opportunity', async () => {

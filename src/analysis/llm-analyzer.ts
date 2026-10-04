@@ -14,7 +14,8 @@ Signals:
 - questions: a NEW utterance raises a question that matters to the discussion.
   kind FACTUAL = has a knowable answer; STRATEGIC = important judgement question bearing on the objective (e.g. "why would customers choose this?"); DECISION = the group deciding what to do; SOCIAL = rhetorical/conversational (omit these).
   interpreted_question: rewrite as a standalone question (resolve pronouns from context). researchable: true only if it can be answered from public sources (vendor docs, standards, public facts), false if it is about the group's own situation.
-  relevance: 0..1 relevance to the objective.
+  relevance: 0..1 relevance to the objective. addressed_to_room: true if asked openly to everyone ("does anyone know…").
+  origin "tentative_claim": a NEW utterance states a checkable fact about something external tentatively ("I think Teams exposes live transcripts to apps") — emit it as a FACTUAL question ("Does Teams expose live transcripts to apps?") so it can be verified without anyone asking. Otherwise origin "question".
 - responses: a NEW utterance responds to an open question or to a question raised earlier in this batch (target_id = open question id, or the utterance id of the question).
   CONFIDENT_ANSWER = specific, credible answer; WEAK_ANSWER = tentative ("I think so", "probably"); UNCERTAIN = they don't know; DEFERRAL = pushed to later ("let's check after the meeting"); ACKNOWLEDGE = acknowledged without answering ("good point"). The asker saying they don't know also counts as UNCERTAIN.
 - thread_activity: a NEW utterance picks up a tracked STRATEGIC question again. DISCUSSING = engaging with it; ADDRESSED = the group reached a credible answer.
@@ -37,7 +38,7 @@ const SCHEMA = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['utterance_id', 'kind', 'interpreted_question', 'researchable', 'relevance', 'note'],
+        required: ['utterance_id', 'kind', 'interpreted_question', 'researchable', 'relevance', 'note', 'addressed_to_room', 'origin'],
         properties: {
           utterance_id: { type: 'string' },
           kind: { type: 'string', enum: ['FACTUAL', 'STRATEGIC', 'DECISION', 'SOCIAL'] },
@@ -45,6 +46,8 @@ const SCHEMA = {
           researchable: { type: 'boolean' },
           relevance: { type: 'number' },
           note: { type: 'string' },
+          addressed_to_room: { type: 'boolean' },
+          origin: { type: 'string', enum: ['question', 'tentative_claim'] },
         },
       },
     },
@@ -117,7 +120,7 @@ const SCHEMA = {
 };
 
 interface RawOutput {
-  questions: { utterance_id: string; kind: QuestionKind; interpreted_question: string; researchable: boolean; relevance: number; note: string }[];
+  questions: { utterance_id: string; kind: QuestionKind; interpreted_question: string; researchable: boolean; relevance: number; note: string; addressed_to_room: boolean; origin: 'question' | 'tentative_claim' }[];
   responses: { utterance_id: string; target_id: string; kind: ResponseKind; note: string }[];
   thread_activity: { utterance_id: string; target_id: string; kind: 'DISCUSSING' | 'ADDRESSED'; note: string }[];
   statements: { utterance_id: string; kind: 'FACT' | 'ASSUMPTION'; text: string }[];
@@ -167,7 +170,16 @@ export class LlmAnalyzer implements ConversationAnalyzer {
     return {
       questions: raw.questions
         .filter((q) => newIds.has(q.utterance_id) && q.kind !== 'SOCIAL' && q.interpreted_question.trim())
-        .map((q) => ({ utteranceId: q.utterance_id, kind: q.kind, interpretedQuestion: q.interpreted_question.trim(), researchable: q.kind === 'FACTUAL' && q.researchable, relevance: clamp(q.relevance), note: q.note })),
+        .map((q) => ({
+          utteranceId: q.utterance_id,
+          kind: q.kind,
+          interpretedQuestion: q.interpreted_question.trim(),
+          researchable: q.kind === 'FACTUAL' && q.researchable,
+          relevance: clamp(q.relevance),
+          note: q.note,
+          openToRoom: q.addressed_to_room,
+          origin: q.origin === 'tentative_claim' ? ('tentative_claim' as const) : ('question' as const),
+        })),
       responses: raw.responses
         .filter((r) => newIds.has(r.utterance_id) && targets.has(r.target_id))
         .map((r) => ({ utteranceId: r.utterance_id, targetId: r.target_id, kind: r.kind, note: r.note })),

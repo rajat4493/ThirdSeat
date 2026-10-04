@@ -23,6 +23,20 @@ Last updated: 2026-10-02 (V0 build + live audio input).
 | 11 | Reasoning gap (feasibility → commitment) is conservative: needs an objective, expires in 15 s | ✅ | reasoning test; w01 rehearsal shows it dropped rather than piled on |
 | 12 | Topic proposals ("What about X?") are not treated as gaps | ✅ | S4 assertion + analyzer test (found as a false positive in the first run, then fixed) |
 
+## Timing modes (proactive / reactive / retroactive)
+
+| # | Claim | Status | Evidence |
+|---|---|---|---|
+| 12a | Research starts when a factual question is asked, before any human signal | ✅ | `tests/timing-modes.test.ts` (research start = question time) |
+| 12b | Unanswered question + ready answer → offered after the grace period without anyone saying "not sure" | ✅ | timing-modes test; `scenarios/s11…` at 00:12 |
+| 12c | Question asked to the room → answered as soon as ready | ✅ | timing-modes test (TTI 0 ms with fixtures); s11 at 01:00 |
+| 12d | Tentative factual claim checked unprompted; hedged *replies* to a question are not mistaken for new claims | ✅ | timing-modes tests; s11 at 00:25–00:32 |
+| 12e | Human answer within the grace period → no card; advance research discarded | ✅ | timing-modes test; S2 |
+| 12f | "Not sure" gets the prepared answer immediately | ✅ | timing-modes test (answer existed before the gap qualified) |
+| 12g | Late answers are framed as returning to the question | ✅ | timing-modes test (RETROACTIVE, "Back to … (raised 2 min ago)") |
+| 12h | Weak no-AI evidence does not interrupt proactively; it is listed quietly | ✅ | Live UI run against real Microsoft docs: `docs/evidence/timing-modes-live.png` (card in "open", none in "now") |
+| 12i | Proactive mode helps rather than distracts in a real conversation | ⛔ | Needs live validation; watch the proactive dismiss rate in the report's per-mode counts. |
+
 ## Real research (not fixtures)
 
 | # | Claim | Status | Evidence |

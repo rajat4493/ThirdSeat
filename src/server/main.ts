@@ -103,7 +103,7 @@ function createSession(body: Record<string, unknown>): LiveSession {
     title: str(body.title, 200) || 'Untitled session',
     config: { objective: str(body.objective, 600) || undefined, sourceUrls: urls },
   };
-  const built = buildEngine({ session, clock: realClock, llm, webSearch, localDocs });
+  const built = buildEngine({ session, clock: realClock, llm, webSearch, localDocs, config: { proactiveResearch: process.env.THIRDSEAT_PROACTIVE !== '0' } });
   const source = new ManualConversationSource();
   const live: LiveSession = {
     session,
@@ -136,7 +136,7 @@ function snapshot(live: LiveSession) {
     tools: live.built.tools.map((t) => ({ id: t.id, description: t.description })),
     sourceLoadErrors: live.built.supplied?.loadErrors ?? [],
     transcript: e.state.transcript.slice(-300),
-    gaps: [...e.state.gaps.values()],
+    gaps: [...e.state.gaps.values()].filter((g) => !g.speculative),
     simulating: !!live.simulation,
   };
 }

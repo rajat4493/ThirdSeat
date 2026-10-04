@@ -20,6 +20,15 @@ While you talk, ThirdSeat:
 - **Notices factual questions nobody can answer.** If someone says "not sure", "no idea",
   "let's check after the meeting" or gives a shaky "I think so", it looks the answer up straight
   away and shows a short card with the source and an honest confidence label.
+- **Chooses when to speak up, depending on the situation:**
+  - *Proactive:* it starts looking up a factual question the moment it's asked. If nobody answers
+    within a few seconds, it offers what it found. Nobody needs to say "not sure" first. It answers
+    "does anyone know…?" as soon as it can, and checks tentative claims like "I think X supports Y"
+    without being asked.
+  - *Reactive:* when someone says "not sure" or "let's check later", the answer is usually already
+    there, so it appears instantly.
+  - *Retroactive:* if an answer only arrives after you've moved on, it says "Back to your earlier
+    question…". It also brings back dropped questions when you start deciding.
 - **Stays quiet when you've got it.** If someone answers confidently, it stands down. If someone
   answers while it is still researching, it cancels the research and shows nothing.
 - **Remembers important questions you dropped.** "Why wouldn't Microsoft just build this?" gets
@@ -47,7 +56,7 @@ does not include the transcript.
 
 ## What actually works (proven)
 
-- All 10 required behaviours, as repeatable automated tests (36 tests in total, all passing).
+- All 10 required behaviours, as repeatable automated tests (44 tests in total, all passing).
 - A real end-to-end run with no faked answers: a question in the conversation became a gap.
   ThirdSeat fetched the official Microsoft docs live, quoted the relevant passage, and showed it
   about 0.3 seconds after the question was left unanswered. Every quoted passage was checked

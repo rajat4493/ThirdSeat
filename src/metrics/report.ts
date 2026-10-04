@@ -1,7 +1,7 @@
 // Session metrics for product validation. Counts what happened; never invents outcomes.
 // System-inferred and human-confirmed values are kept separate.
 
-import type { Gap, GapType } from '../domain/types.ts';
+import { TIMING_MODES, type Gap, type GapType, type TimingMode } from '../domain/types.ts';
 import type { GapEngine } from '../gaps/engine.ts';
 
 export interface LatencyStats {
@@ -28,6 +28,7 @@ export interface GapSummary {
   confidence?: string;
   sources: { title: string; url?: string; tier: string }[];
   surfaced: boolean;
+  timingMode?: TimingMode;
   topicLiveAtSurface?: boolean;
   timeToInterventionMs?: number;
   researchDurationMs?: number;
@@ -71,6 +72,8 @@ export interface SessionReport {
     userRequestedLookups: number;
     surfacedWhileTopicLive: number;
   };
+  /** How contributions related in time to the humans: before a gap was signalled, in response, or returning later. */
+  timing: Record<TimingMode, { surfaced: number; used: number; dismissed: number; timeToIntervention: LatencyStats }>;
   latency: {
     timeToUsefulIntervention: LatencyStats;
     research: LatencyStats;
@@ -85,7 +88,8 @@ const has = (g: Gap, a: string) => g.userActions.some((x) => x.action === a);
 const flagged = (g: Gap, f: string) => g.feedback.some((x) => x.flag === f);
 
 export function buildReport(engine: GapEngine, opts: { analyzer: string; tools: string[]; now: number; humanValidation?: Record<string, string> }): SessionReport {
-  const gaps = [...engine.state.gaps.values()];
+  // Questions researched ahead of time that never qualified are not gaps.
+  const gaps = [...engine.state.gaps.values()].filter((g) => !g.speculative);
   const surfaced = gaps.filter((g) => g.timing.surfacedAt);
   const knowledge = gaps.filter((g) => g.type === 'KNOWLEDGE');
   const tti = surfaced.filter((g) => g.type === 'KNOWLEDGE').map((g) => g.timing.surfacedAt! - g.timing.triggerAt);
@@ -129,6 +133,12 @@ export function buildReport(engine: GapEngine, opts: { analyzer: string; tools: 
       userRequestedLookups: gaps.filter((g) => g.reason === 'USER_REQUESTED').length,
       surfacedWhileTopicLive: surfaced.filter((g) => g.topicLiveAtSurface).length,
     },
+    timing: Object.fromEntries(
+      TIMING_MODES.map((m) => {
+        const s = surfaced.filter((g) => g.timingMode === m);
+        return [m, { surfaced: s.length, used: s.filter((g) => has(g, 'USE')).length, dismissed: s.filter((g) => has(g, 'DISMISS')).length, timeToIntervention: stats(s.map((g) => g.timing.surfacedAt! - g.timing.triggerAt)) }];
+      }),
+    ) as SessionReport['timing'],
     latency: {
       timeToUsefulIntervention: stats(tti),
       research: stats(knowledge.map((g) => g.researchDurationMs ?? NaN)),
@@ -151,6 +161,7 @@ export function summarise(g: Gap): GapSummary {
     confidence: g.confidence,
     sources: g.evidence.slice(0, 4).map((e) => ({ title: e.title, url: e.url, tier: e.sourceTier })),
     surfaced: !!g.timing.surfacedAt,
+    timingMode: g.timingMode,
     topicLiveAtSurface: g.topicLiveAtSurface,
     timeToInterventionMs: g.timing.surfacedAt ? g.timing.surfacedAt - g.timing.triggerAt : undefined,
     researchDurationMs: g.researchDurationMs,

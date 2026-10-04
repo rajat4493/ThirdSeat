@@ -53,6 +53,17 @@ export type DetectionReason = (typeof DETECTION_REASONS)[number];
 /** Confidence in a researched answer. Describes sourcing quality, not truth. */
 export type Confidence = 'HIGH' | 'LIKELY' | 'UNVERIFIED';
 
+/**
+ * When ThirdSeat contributes, relative to the humans:
+ * PROACTIVE   — before anyone signalled a gap (answer ready, nobody answered; tentative claim checked; drift).
+ * REACTIVE    — in response to a human signal ("not sure", "let's check later", "I think so").
+ * RETROACTIVE — returning to something after the conversation moved on (late answer, dropped thread, open items at a conclusion).
+ */
+export type TimingMode = 'PROACTIVE' | 'REACTIVE' | 'RETROACTIVE';
+export const TIMING_MODES: TimingMode[] = ['PROACTIVE', 'REACTIVE', 'RETROACTIVE'];
+
+export type ResearchOutcomeKind = 'RESOLVED' | 'PARTIALLY_RESOLVED' | 'UNRESOLVED';
+
 /** Configurable ranking of where evidence came from (lower rank = more authoritative). */
 export type SourceTier =
   | 'conversation'
@@ -124,6 +135,17 @@ export interface Gap {
   decisionLog: DecisionNote[];
   userActions: { action: UserActionType; at: Millis }[];
   feedback: { flag: FeedbackFlag; at: Millis }[];
+  /** How this contribution relates in time to the humans (set when surfaced; see TimingMode). */
+  timingMode?: TimingMode;
+  /**
+   * Research started the moment the question was asked, before it qualified as a gap. Hidden from the
+   * UI and not counted as a gap until it qualifies; discarded if the humans answer it themselves.
+   */
+  speculative?: boolean;
+  /** Asked openly to everyone ("does anyone know…"): an answer is welcome as soon as it is ready. */
+  askedToRoom?: boolean;
+  /** Outcome of research finished while still speculative (applied if/when the gap qualifies). */
+  prefetchOutcome?: ResearchOutcomeKind;
   /** Last time the humans were seen discussing this item (suppresses recall). */
   lastDiscussedAt?: Millis;
   /** Items listed by drift / conclusion interventions. */

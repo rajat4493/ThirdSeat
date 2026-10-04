@@ -10,7 +10,7 @@ Not a note taker, transcriber or summariser. See [`duck/HUMAN_INTENT.md`](duck/H
 ```bash
 npm install
 npm start            # http://127.0.0.1:4317
-npm test             # 36 deterministic tests
+npm test             # 44 deterministic tests
 npm run e2e:real     # real-retrieval proof run → docs/evidence/
 ```
 

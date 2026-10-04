@@ -59,6 +59,17 @@ documented.
   browser with fake devices, proved everything except recognition accuracy. The ledger tier 🟡 kept
   that boundary honest.
 
+## Follow-up: "we are being very retroactive — we have to be all 3"
+
+- The first build over-applied "minimum interruption": it waited for a human signal before even
+  *starting* research. That turned a good principle into a reactive-only product. **Lesson: separate
+  "when to work" from "when to speak".** Working early (research at question time) costs nothing in
+  interruptions, and the policy still decides when to speak.
+- An earlier scope decision ("defer speculative research") was overturned by the human with a
+  product reason. The SCOPE log made the reversal explicit instead of silent.
+- Without AI, proactive mode surfaces little, because unverified passages fall below the threshold. That is
+  correct, but it means the no-AI demo under-shows the feature. Say so instead of lowering thresholds.
+
 ## Suggested changes to TheDuck templates
 
 - Add an "**Environment capabilities**" section to AGENT_SPEC: credentials, network egress, runtime.
@@ -66,4 +77,5 @@ documented.
 - Use status levels in VERIFICATION_LEDGER (✅ verified / 🟡 fakes only / ⛔ not verified). The
   middle tier stops "tested" being over-claimed.
 - Require HUMAN_SUMMARY to have a "What is mocked?" section. It forces honesty about fixtures.
+- Add "**Timing stance**" (proactive / reactive / retroactive) as an explicit intent question when the product interrupts people.
 - Add "**Reference products named by the human**" to the ambiguity pass: name what is being borrowed (input? output? UX?) before building.

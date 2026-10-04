@@ -1,0 +1,19 @@
+{
+  "id": "s11-proactive-and-retroactive",
+  "title": "Proactive, reactive and retroactive in one conversation",
+  "description": "Nobody says 'not sure' for the first question; a tentative claim is made in passing; one question is asked to the room; one is deferred. ThirdSeat should act before being prompted where it can, react where humans signal a gap, and come back to a dropped thread later.",
+  "objective": "Decide which collaboration platform to integrate with first.",
+  "lines": [
+    { "t": 0, "s": "A", "text": "Does Slack's API let apps read huddle transcripts?" },
+    { "t": 6, "s": "B", "text": "Our users mostly live in Slack anyway." },
+    { "t": 12, "s": "A", "text": "Right, and the onboarding there is simple." },
+    { "t": 25, "s": "B", "text": "I think Notion supports webhooks for database changes, so syncing would be easy." },
+    { "t": 40, "s": "A", "text": "Why would a team pick us over just using the built-in AI in these tools?" },
+    { "t": 46, "s": "B", "text": "Fair point." },
+    { "t": 60, "s": "A", "text": "Does anyone know if Zoom lets apps receive raw meeting audio in real time?" },
+    { "t": 90, "s": "B", "text": "Let's say the integration work takes about a month per platform." },
+    { "t": 120, "s": "A", "text": "The sync engine could be shared across platforms." },
+    { "t": 150, "s": "B", "text": "And the permissions model is similar in all of them." },
+    { "t": 175, "s": "A", "text": "So what should we build first, and what do we charge?" }
+  ]
+}

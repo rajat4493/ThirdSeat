@@ -43,7 +43,7 @@ The system continuously understands; it rarely speaks.
 
 ### 1.3 Knowledge-gap lifecycle
 
-1. A factual question is asked → a **watch** opens (not yet a gap; nothing surfaced).
+1. A factual question is asked → a **watch** opens (not yet a gap; nothing surfaced) and research starts in the background (see 1.3a).
 2. Within the watch window (default: 3 following utterances or 25 s):
    - credible, specific human answer → `NATURALLY_RESOLVED` (no research, no intervention)
    - uncertainty ("not sure", "no idea") → qualify `EXPLICIT_UNANSWERED_QUESTION`
@@ -58,6 +58,21 @@ The system continuously understands; it rarely speaks.
 6. RESOLVED/PARTIALLY_RESOLVED are offered to the policy as interventions. UNRESOLVED is
    listed in the side panel as "couldn't verify" but **does not interrupt**.
 7. User actions finalise: `USED`, `DISMISSED`, `MARK_RESOLVED`, plus feedback flags.
+
+### 1.3a Timing modes: proactive, reactive, retroactive
+
+ThirdSeat chooses *when* to contribute per question and situation (human request, 2026-10-04: "we are
+being very retroactive — we have to be all 3"):
+
+| Mode | When | Examples |
+|---|---|---|
+| **PROACTIVE** | Before anyone signals a gap | Research starts the moment a factual question is asked. If the answer is ready and nobody has answered after a short grace period (2 utterances or 8 s), it is offered. A question asked to the room ("does anyone know…") is answered as soon as the answer is ready. A tentative factual claim about something external ("I think X supports Y") is checked unprompted. Drift and reasoning notes. |
+| **REACTIVE** | When humans signal a gap | "Not sure", "let's check later", "I think so". The answer is usually already prepared, so it appears at once. |
+| **RETROACTIVE** | Returning to something the conversation moved past | An answer that arrives ≥ 90 s after the question or after the topic moved on is framed "Back to “…” (raised N min ago)". Dropped threads are recalled at decision points. Open items are listed at a conclusion. |
+
+Guardrails: research done ahead of time is invisible and discarded if a human answers. Proactive
+contributions pass the same priority threshold, so weak (UNVERIFIED) evidence is listed without
+interrupting. `THIRDSEAT_PROACTIVE=0` disables advance research.
 
 ### 1.4 Open-thread lifecycle
 

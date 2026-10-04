@@ -73,9 +73,9 @@ objective: Decide whether this idea deserves validation and identify the biggest
   00:06  B: Good question, I don't know.
   00:14  A: Can Teams expose live transcript data to third-party apps?
   00:19  B: No idea, honestly.
-  00:19      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
   00:19      · surfaced knowledge: FIXTURE: Only after the meeting via Graph; live access needs a real-time media…
   00:19  ▶ [KNOWLEDGE / HIGH] FIXTURE: Only after the meeting via Graph; live access needs a real-time media bot. Nobody in the conversation knew this.
+  00:19      · tracking open thread: "Why wouldn't Microsoft just build this into Copilot?"
   00:30  A: By the way, we need a name. What about ThirdSeat as the name?
   00:50  B: I like ThirdSeat, it sounds like a person at the table.
   01:10  A: The logo could be a simple chair icon with three legs.
@@ -114,8 +114,8 @@ objective: Choose a cloud database for the analytics product. | analyzer: heuris
   00:24      · surfaced knowledge: FIXTURE: 4 MB maximum row size. You deferred this — it looks resolvable now ins…
   00:24  ▶ [KNOWLEDGE / HIGH] FIXTURE: 4 MB maximum row size. You deferred this — it looks resolvable now instead of becoming follow-up work.
   00:30  A: Meanwhile, the dashboards need to load in under two seconds.
-  00:44      · surfaced knowledge: FIXTURE: Row access policies exist; external table support is limited. Nobody i…
-  00:44  ▶ [KNOWLEDGE / LIKELY] FIXTURE: Row access policies exist; external table support is limited. Nobody in the conversation knew this.
+  00:44      · surfaced knowledge: Back to “Does Snowflake support row-level security on external tables?” (raised…
+  00:44  ▶ [KNOWLEDGE / LIKELY] Back to “Does Snowflake support row-level security on external tables?” (raised 1 min ago): FIXTURE: Row access policies exist; external table support is limited.
   ── gaps: KNOWLEDGE:RESOLVED, KNOWLEDGE:PARTIALLY_RESOLVED, KNOWLEDGE:RESOLVED
   ── surfaced 3, naturally resolved 0, TTI median 8000 ms
 
@@ -150,6 +150,31 @@ objective: Decide whether this idea deserves further validation and identify the
                1 other question(s) raised were answered during the session.
   ── gaps: OPEN_THREAD:OPEN, OPEN_THREAD:OPEN, DECISION:OPEN
   ── surfaced 1, naturally resolved 1, TTI median - ms
+
+━━━ s11-proactive-and-retroactive: Proactive, reactive and retroactive in one conversation
+objective: Decide which collaboration platform to integrate with first. | analyzer: heuristic | tools: conversation_context, fixture
+  00:00  A: Does Slack's API let apps read huddle transcripts?
+  00:06  B: Our users mostly live in Slack anyway.
+  00:12  A: Right, and the onboarding there is simple.
+  00:12      · surfaced knowledge: Looked this up while you were talking: FIXTURE: No — huddle transcripts are not…
+  00:12  ▶ [KNOWLEDGE / HIGH] Looked this up while you were talking: FIXTURE: No — huddle transcripts are not available to apps via the Slack API.
+  00:25  B: I think Notion supports webhooks for database changes, so syncing would be easy.
+  00:32      · surfaced knowledge: Checked the assumption you just made: FIXTURE: Yes — integration webhooks cover…
+  00:32  ▶ [KNOWLEDGE / HIGH] Checked the assumption you just made: FIXTURE: Yes — integration webhooks cover database changes.
+  00:40  A: Why would a team pick us over just using the built-in AI in these tools?
+  00:46  B: Fair point.
+  01:00  A: Does anyone know if Zoom lets apps receive raw meeting audio in real time?
+  01:00      · surfaced knowledge: You asked the room — here's what I found: FIXTURE: Yes — via Realtime Media Str…
+  01:00  ▶ [KNOWLEDGE / HIGH] You asked the room — here's what I found: FIXTURE: Yes — via Realtime Media Streams, for approved apps.
+  01:05      · tracking open thread: "Why would a team pick us over just using the built-in AI in…"
+  01:30  B: Let's say the integration work takes about a month per platform.
+  02:00  A: The sync engine could be shared across platforms.
+  02:30  B: And the permissions model is similar in all of them.
+  02:55  A: So what should we build first, and what do we charge?
+  02:55      · surfaced open_thread: Earlier (2 min ago) you raised: “Why would a team pick us over just using the b…
+  02:55  ▶ [OPEN_THREAD] Earlier (2 min ago) you raised: “Why would a team pick us over just using the built-in AI in these tools?” It is still unresolved and looks relevant to the objective, and you're now making decisions that may depend on it.
+  ── gaps: KNOWLEDGE:RESOLVED, KNOWLEDGE:RESOLVED, KNOWLEDGE:RESOLVED, OPEN_THREAD:OPEN
+  ── surfaced 4, naturally resolved 0, TTI median 7000 ms
 
 ━━━ w01-whiteboard-rehearsal: Two-person whiteboarding rehearsal
 objective: By the end of this discussion, decide whether this idea deserves further validation and identify the biggest unknowns. | analyzer: heuristic | tools: conversation_context, fixture

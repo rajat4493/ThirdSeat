@@ -40,6 +40,10 @@ export interface QuestionSignal {
   /** 0..1 */
   relevance: number;
   note: string;
+  /** Asked openly to the room ("does anyone know…") — an answer is welcome as soon as it is ready. */
+  openToRoom?: boolean;
+  /** 'tentative_claim' = a hedged factual statement ("I think X supports Y") treated as a question to verify. */
+  origin?: 'question' | 'tentative_claim';
 }
 
 export interface ResponseSignal {

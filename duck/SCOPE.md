@@ -58,6 +58,7 @@
 | 2026-10-02 | Export transcript at session end | **Rejected** | Turns product toward note-taking; privacy. Report contains gaps/interventions, not the transcript. |
 | 2026-10-02 | Summarise the conversation at the end | **Rejected** | Summariser. Conclusion support lists *remaining blockers* only, live. |
 | 2026-10-02 | Speculative research on every factual question before qualification | **Deferred** | Could cut latency but increases cost/noise; revisit with live latency data. |
+| 2026-10-04 | Be proactive, reactive *and* retroactive depending on the situation (human request) | **Accepted** | Supersedes the deferral above: advance research is now on by default (switchable off). Proactive cards still pass the priority threshold, so silence remains the default. |
 | 2026-10-02 | Browser mic input via Web Speech API | **Accepted** | Needed for live validation; behind the `ConversationSource` abstraction. |
 | 2026-10-02 | Charts in session-end view | **Rejected** | Analytics clutter; counts and lists suffice for validation. |
 | 2026-10-02 | "Audio enablement" (human request) | **Accepted as audio *input*** | Human chose better listening (room mic + call tab, speaker separation) over speaking. Directly serves gap detection. Server speech-to-text behind `SpeechToTextProvider`. |

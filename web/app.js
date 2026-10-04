@@ -98,6 +98,7 @@ function connect() {
   });
   events.addEventListener('gap', (m) => {
     const { gap } = JSON.parse(m.data);
+    if (gap.speculative) return; // researched ahead of time; not a gap (yet)
     gaps.set(gap.id, gap);
     renderPanel();
   });
@@ -137,6 +138,12 @@ const KIND_LABEL = {
   CONTEXT: 'Context gap',
 };
 
+const MODE_HELP = {
+  PROACTIVE: 'Offered before anyone signalled a gap',
+  REACTIVE: 'In response to “not sure”, “let’s check later” or a tentative answer',
+  RETROACTIVE: 'Coming back to something the conversation moved past',
+};
+
 const isActioned = (g) => g.userActions.some((a) => ['USE', 'DISMISS', 'MARK_RESOLVED'].includes(a.action));
 
 async function act(g, action) {
@@ -157,7 +164,12 @@ async function flag(g, f) {
 
 function card(g, mode) {
   const t = g.timing;
-  const kind = el('div', { class: 'kind' }, el('span', {}, KIND_LABEL[g.type] ?? g.type), g.confidence ? el('span', { class: `badge ${g.confidence}` }, g.confidence) : null);
+  const kind = el(
+    'div',
+    { class: 'kind' },
+    el('span', {}, KIND_LABEL[g.type] ?? g.type, g.timingMode && t.surfacedAt ? el('span', { class: `mode-chip ${g.timingMode}`, title: MODE_HELP[g.timingMode] }, g.timingMode.toLowerCase()) : null),
+    g.confidence ? el('span', { class: `badge ${g.confidence}` }, g.confidence) : null,
+  );
   const parts = [kind];
   if (g.type === 'KNOWLEDGE') {
     parts.push(el('div', { class: 'q' }, g.interpretedQuestion));
@@ -382,12 +394,15 @@ function showReport(r) {
       metric(secs(L.timeToUsefulIntervention.medianMs), `median time-to-intervention (p90 ${secs(L.timeToUsefulIntervention.p90Ms)})`),
       metric(`${m.surfacedWhileTopicLive}/${m.interventionsSurfaced}`, 'surfaced while topic still live'),
       metric(m.driftInterventions + m.conclusionInterventions, 'drift / conclusion interventions'),
+      ...['PROACTIVE', 'REACTIVE', 'RETROACTIVE'].map((k) =>
+        metric(`${r.timing[k].surfaced} · ${secs(r.timing[k].timeToIntervention.medianMs)}`, `${k.toLowerCase()} cards · median time-to-intervention`),
+      ),
     ),
     el('h2', {}, 'Gaps'),
     el(
       'table',
       {},
-      el('tr', {}, ...['type', 'question', 'status', 'confidence', 'surfaced', 'TTI', 'actions / feedback'].map((h) => el('th', {}, h))),
+      el('tr', {}, ...['type', 'question', 'status', 'confidence', 'surfaced', 'timing', 'TTI', 'actions / feedback'].map((h) => el('th', {}, h))),
       ...r.gaps.map((g) =>
           el(
             'tr',
@@ -397,6 +412,7 @@ function showReport(r) {
             el('td', {}, g.status),
             el('td', {}, g.confidence ?? ''),
             el('td', {}, g.surfaced ? 'yes' : 'no'),
+            el('td', {}, g.timingMode ? g.timingMode.toLowerCase() : ''),
             el('td', {}, secs(g.timeToInterventionMs)),
             el('td', {}, [...g.userActions, ...g.feedback].join(', ')),
           ),

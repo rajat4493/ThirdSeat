@@ -11,6 +11,7 @@ import type {
   Intervention,
   Millis,
   Session,
+  TimingMode,
   UserActionType,
   Utterance,
 } from '../domain/types.ts';
@@ -35,6 +36,14 @@ export interface EngineConfig {
   conclusionCooldownMs: Millis;
   reasoningCooldownMs: Millis;
   maxConcurrentResearch: number;
+  /** Start researching factual questions the moment they are asked (before they qualify as gaps). */
+  proactiveResearch: boolean;
+  /** An unanswered question whose answer is ready is offered proactively after this long… */
+  proactiveGraceMs: Millis;
+  /** …or after this many further utterances without a human answer. */
+  proactiveGraceUtterances: number;
+  /** A knowledge answer surfaced this long after the question (or after the topic moved on) is retroactive. */
+  retroactiveAfterMs: Millis;
   /** Cards count as "active" (occupying attention) for this long unless actioned. */
   activeTtlMs: Millis;
   policy: Partial<PolicyConfig>;
@@ -52,6 +61,10 @@ export const DEFAULT_ENGINE_CONFIG: EngineConfig = {
   conclusionCooldownMs: 300_000,
   reasoningCooldownMs: 600_000,
   maxConcurrentResearch: 2,
+  proactiveResearch: true,
+  proactiveGraceMs: 8_000,
+  proactiveGraceUtterances: 2,
+  retroactiveAfterMs: 90_000,
   activeTtlMs: 150_000,
   policy: {},
 };
@@ -67,6 +80,10 @@ interface Watch {
   discussed: number;
   addressed: boolean;
   note: string;
+  openToRoom: boolean;
+  origin: 'question' | 'tentative_claim';
+  /** Gap holding research started at question time (proactive research). */
+  gapId?: string;
 }
 
 export type EngineEvent =
@@ -209,7 +226,7 @@ export class GapEngine {
     }
     for (const g of this.state.gaps.values()) {
       const live = (g.type === 'KNOWLEDGE' && OPEN_KNOWLEDGE.has(g.status)) || (g.type === 'OPEN_THREAD' && g.status === 'OPEN');
-      if (!live) continue;
+      if (!live || g.speculative) continue;
       const u = this.state.utterance(g.triggerUtteranceId);
       views.push({
         id: g.id,
@@ -250,7 +267,11 @@ export class GapEngine {
         discussed: 0,
         addressed: false,
         note: q.note,
+        openToRoom: !!q.openToRoom,
+        origin: q.origin ?? 'question',
       });
+      const w = this.watches.get(u.id)!;
+      if (q.kind === 'FACTUAL' && q.researchable && this.research && this.cfg.proactiveResearch) this.startProactiveResearch(w);
     }
 
     for (const r of a.responses) {
@@ -309,7 +330,7 @@ export class GapEngine {
   private isDuplicateQuestion(q: string): boolean {
     const t = termSet(q);
     const all = [...this.watches.values()].map((w) => w.interpreted).concat(
-      [...this.state.gaps.values()].filter((g) => OPEN_KNOWLEDGE.has(g.status) || g.status === 'RESOLVED').map((g) => g.interpretedQuestion),
+      [...this.state.gaps.values()].filter((g) => !g.speculative && (OPEN_KNOWLEDGE.has(g.status) || g.status === 'RESOLVED')).map((g) => g.interpretedQuestion),
     );
     return all.some((x) => {
       const o = termSet(x);
@@ -335,10 +356,20 @@ export class GapEngine {
       if (lastResponse?.kind === 'CONFIDENT_ANSWER' && !kinds.has('DEFERRAL')) {
         return this.closeWatch(w, 'NATURALLY_RESOLVED', 'QUESTION_RAISED', `answered credibly in conversation (${lastResponse.note})`);
       }
-      if (kinds.has('DEFERRAL')) return this.closeWatch(w, 'QUALIFY', 'DEFERRED_FOR_LATER', 'humans deferred the answer');
-      if (kinds.has('UNCERTAIN')) return this.closeWatch(w, 'QUALIFY', 'EXPLICIT_UNANSWERED_QUESTION', 'humans said they do not know');
-      if (kinds.has('WEAK_ANSWER')) return this.closeWatch(w, 'QUALIFY', 'LOW_CONFIDENCE_HUMAN_RESPONSE', 'only a low-confidence answer was given');
-      if (windowClosed) return this.closeWatch(w, 'QUALIFY', 'EXPLICIT_UNANSWERED_QUESTION', 'question left unanswered as conversation moved on');
+      if (w.origin === 'tentative_claim') {
+        return this.closeWatch(w, 'QUALIFY', 'LOW_CONFIDENCE_HUMAN_RESPONSE', 'tentative claim — checked without being asked', 'PROACTIVE');
+      }
+      if (kinds.has('DEFERRAL')) return this.closeWatch(w, 'QUALIFY', 'DEFERRED_FOR_LATER', 'humans deferred the answer', 'REACTIVE');
+      if (kinds.has('UNCERTAIN')) return this.closeWatch(w, 'QUALIFY', 'EXPLICIT_UNANSWERED_QUESTION', 'humans said they do not know', 'REACTIVE');
+      if (kinds.has('WEAK_ANSWER')) return this.closeWatch(w, 'QUALIFY', 'LOW_CONFIDENCE_HUMAN_RESPONSE', 'only a low-confidence answer was given', 'REACTIVE');
+      // Proactive: the answer is already prepared and nobody has answered — don't wait for "not sure".
+      const g = w.gapId ? this.state.gaps.get(w.gapId) : undefined;
+      const ready = !!g?.prefetchOutcome && g.prefetchOutcome !== 'UNRESOLVED';
+      const graceOver = w.openToRoom || seen >= this.cfg.proactiveGraceUtterances || this.clock.now() - w.utterance.at >= this.cfg.proactiveGraceMs;
+      if (ready && graceOver) {
+        return this.closeWatch(w, 'QUALIFY', 'EXPLICIT_UNANSWERED_QUESTION', w.openToRoom ? 'asked to the room; answer ready' : 'answer ready and nobody has answered', 'PROACTIVE');
+      }
+      if (windowClosed) return this.closeWatch(w, 'QUALIFY', 'EXPLICIT_UNANSWERED_QUESTION', 'question left unanswered as conversation moved on', 'PROACTIVE');
       return;
     }
     // STRATEGIC: important judgement questions become open threads unless the group actually addressed them.
@@ -351,9 +382,47 @@ export class GapEngine {
     }
   }
 
-  private closeWatch(w: Watch, outcome: 'NATURALLY_RESOLVED' | 'QUALIFY' | 'THREAD', reason: DetectionReason, why: string): void {
+  private newGapFromWatch(w: Watch, type: GapType, reason: DetectionReason, note: string): Gap {
+    const now = this.clock.now();
+    const gap: Gap = {
+      id: newId('gap'),
+      sessionId: this.session.id,
+      type,
+      reason,
+      status: 'DETECTED',
+      triggerUtteranceId: w.id,
+      contextUtteranceIds: this.contextIds(w.utterance),
+      trigger: w.utterance.text,
+      interpretedQuestion: w.interpreted,
+      relevanceToObjective: w.relevance,
+      researchable: w.researchable && type === 'KNOWLEDGE',
+      priority: 0,
+      evidence: [],
+      timing: { triggerAt: w.utterance.at, detectedAt: now },
+      decisionLog: [{ at: now, note }],
+      userActions: [],
+      feedback: [],
+    };
+    this.state.gaps.set(gap.id, gap);
+    this.gapByTrigger.set(w.id, gap.id);
+    return gap;
+  }
+
+  /** Start research the moment a factual question is asked; nothing is shown unless it qualifies. */
+  private startProactiveResearch(w: Watch): void {
+    const gap = this.newGapFromWatch(w, 'KNOWLEDGE', 'QUESTION_RAISED', `${w.note}; researching ahead of time`);
+    gap.speculative = true;
+    gap.askedToRoom = w.openToRoom || undefined;
+    gap.priority = 0.5;
+    w.gapId = gap.id;
+    this.enqueueResearch(gap.id, 'normal');
+  }
+
+  private closeWatch(w: Watch, outcome: 'NATURALLY_RESOLVED' | 'QUALIFY' | 'THREAD', reason: DetectionReason, why: string, mode?: TimingMode): void {
     this.watches.delete(w.id);
     const now = this.clock.now();
+    const pre = w.gapId ? this.state.gaps.get(w.gapId) : undefined;
+    if (pre && outcome !== 'THREAD') return this.settleSpeculative(w, pre, outcome, reason, why, mode);
     const ctx = this.contextIds(w.utterance);
     const type: GapType = outcome === 'THREAD' ? 'OPEN_THREAD' : 'KNOWLEDGE';
     const gap: Gap = {
@@ -368,6 +437,7 @@ export class GapEngine {
       interpretedQuestion: w.interpreted,
       relevanceToObjective: w.relevance,
       researchable: w.researchable && type === 'KNOWLEDGE',
+      askedToRoom: w.openToRoom || undefined,
       priority: 0,
       evidence: [],
       timing: { triggerAt: w.utterance.at, detectedAt: now },
@@ -393,6 +463,7 @@ export class GapEngine {
       return;
     }
     gap.priority = this.basePriority(gap);
+    gap.timingMode = mode;
     if (gap.researchable && this.research) {
       this.emitGap(gap);
       this.enqueueResearch(gap.id, 'normal');
@@ -401,6 +472,42 @@ export class GapEngine {
       gap.decisionLog.push({ at: now, note: gap.researchable ? 'no research service configured' : 'not publicly researchable (about the group itself); tracked as open item' });
       this.emitGap(gap);
     }
+  }
+
+  /** A question researched ahead of time is now decided: stand down, or qualify and use what was found. */
+  private settleSpeculative(w: Watch, gap: Gap, outcome: 'NATURALLY_RESOLVED' | 'QUALIFY', reason: DetectionReason, why: string, mode?: TimingMode): void {
+    const now = this.clock.now();
+    if (outcome === 'NATURALLY_RESOLVED') {
+      const running = this.inflight.get(gap.id);
+      if (running) running.controller.abort();
+      this.researchQueue = this.researchQueue.filter((q) => q.gapId !== gap.id);
+      gap.speculative = false;
+      gap.status = 'NATURALLY_RESOLVED';
+      gap.timing.resolvedAt = now;
+      gap.decisionLog.push({ at: now, note: `${why}${running ? '; advance research cancelled' : gap.prefetchOutcome ? '; advance research discarded' : ''}` });
+      this.note(`stood down: "${truncate(w.interpreted, 60)}" — ${why}`);
+      this.emitGap(gap);
+      return;
+    }
+    gap.speculative = false;
+    gap.reason = reason;
+    gap.timing.qualifiedAt = now;
+    gap.timingMode = mode;
+    gap.contextUtteranceIds = this.contextIds(w.utterance);
+    gap.decisionLog.push({ at: now, note: why });
+    gap.priority = this.basePriority(gap, gap.prefetchOutcome ? gap.confidence : undefined);
+    if (gap.prefetchOutcome) {
+      gap.decisionLog.push({ at: now, note: 'answer was prepared before the gap qualified' });
+      return this.applyOutcome(gap, gap.prefetchOutcome);
+    }
+    if (this.inflight.has(gap.id) || this.researchQueue.some((q) => q.gapId === gap.id)) {
+      // Still researching; the normal path takes over when it finishes.
+      gap.status = 'RESEARCHING';
+      this.emitGap(gap);
+      return;
+    }
+    this.emitGap(gap);
+    this.enqueueResearch(gap.id, 'normal');
   }
 
   private contextIds(u: Utterance): string[] {
@@ -507,7 +614,7 @@ export class GapEngine {
       this.emitGap(gap);
       return;
     }
-    if (controller.signal.aborted || gap.status !== 'RESEARCHING') {
+    if (controller.signal.aborted || (gap.status !== 'RESEARCHING' && !gap.speculative)) {
       gap.decisionLog.push({ at: this.clock.now(), note: 'research result discarded — gap no longer open' });
       this.emitGap(gap);
       return;
@@ -524,15 +631,29 @@ export class GapEngine {
     gap.caveat = run.answer.caveat;
     gap.decisionLog.push({ at: now, note: `${run.answer.note}; tools: ${run.toolsUsed.join(', ') || 'none'}${run.toolErrors.length ? `; issues: ${run.toolErrors.join('; ')}` : ''}` });
 
-    if (run.answer.outcome === 'UNRESOLVED') {
+    if (gap.speculative) {
+      // Prepared ahead of time: hold it until the question qualifies (or the humans answer it).
+      gap.prefetchOutcome = run.answer.outcome;
+      gap.status = 'DETECTED';
+      this.emitGap(gap);
+      const w = this.watches.get(gap.triggerUtteranceId);
+      if (w) this.evaluateWatch(w, false);
+      return;
+    }
+    this.applyOutcome(gap, run.answer.outcome);
+  }
+
+  private applyOutcome(gap: Gap, outcome: 'RESOLVED' | 'PARTIALLY_RESOLVED' | 'UNRESOLVED'): void {
+    const now = this.clock.now();
+    if (outcome === 'UNRESOLVED') {
       gap.status = 'UNRESOLVED';
       gap.caveat = gap.caveat ?? "I couldn't verify this reliably.";
       gap.decisionLog.push({ at: now, note: 'no reliable answer — listed as open, not interrupting' });
       this.emitGap(gap);
       return;
     }
-    gap.status = run.answer.outcome;
-    gap.priority = this.basePriority(gap, run.answer.confidence);
+    gap.status = outcome;
+    gap.priority = this.basePriority(gap, gap.confidence);
     gap.interventionText = this.knowledgeText(gap);
     this.emitGap(gap);
     this.policy.offer({
@@ -546,7 +667,19 @@ export class GapEngine {
     this.flushPolicy();
   }
 
-  private knowledgeText(gap: Gap): string {
+  private knowledgeText(gap: Gap, mode: TimingMode | undefined = gap.timingMode): string {
+    if (mode === 'RETROACTIVE') {
+      const mins = Math.max(1, Math.round((this.clock.now() - gap.timing.triggerAt) / 60_000));
+      return `Back to “${truncate(gap.interpretedQuestion, 120)}” (raised ${mins} min ago): ${gap.answer ?? ''}`.trim();
+    }
+    if (mode === 'PROACTIVE') {
+      const lead = /^Is it true that /.test(gap.interpretedQuestion)
+        ? 'Checked the assumption you just made: '
+        : gap.askedToRoom
+          ? "You asked the room — here's what I found: "
+          : 'Looked this up while you were talking: ';
+      return `${lead}${gap.answer ?? ''}`.trim();
+    }
     const why: Partial<Record<DetectionReason, string>> = {
       DEFERRED_FOR_LATER: 'You deferred this — it looks resolvable now instead of becoming follow-up work.',
       EXPLICIT_UNANSWERED_QUESTION: 'Nobody in the conversation knew this.',
@@ -554,6 +687,18 @@ export class GapEngine {
       USER_REQUESTED: 'You asked for this.',
     };
     return [gap.answer, why[gap.reason]].filter(Boolean).join(' ');
+  }
+
+  /** Decide the timing mode at the moment of surfacing. */
+  private surfaceMode(gap: Gap): TimingMode {
+    if (gap.type === 'OPEN_THREAD' || gap.type === 'DECISION') return 'RETROACTIVE';
+    if (gap.type === 'DRIFT' || gap.type === 'REASONING' || gap.type === 'EVIDENCE') return 'PROACTIVE';
+    if (gap.type === 'KNOWLEDGE') {
+      const late = this.clock.now() - gap.timing.triggerAt >= this.cfg.retroactiveAfterMs || !this.topicLive(gap);
+      if (late && gap.reason !== 'USER_REQUESTED') return 'RETROACTIVE';
+      if (gap.reason === 'USER_REQUESTED') return 'REACTIVE';
+    }
+    return gap.timingMode ?? 'REACTIVE';
   }
 
   // ───────────────────────────── periodic checks ─────────────────────────────
@@ -803,8 +948,10 @@ export class GapEngine {
       }
       if (d.decision !== 'SURFACE') continue;
       gap.timing.surfacedAt = now;
-      gap.interventionText = d.candidate.text;
       gap.topicLiveAtSurface = this.topicLive(gap);
+      gap.timingMode = this.surfaceMode(gap);
+      gap.interventionText = gap.type === 'KNOWLEDGE' ? this.knowledgeText(gap) : d.candidate.text;
+      d.candidate.text = gap.interventionText;
       gap.decisionLog.push({ at: now, note: `surfaced (${d.reason})` });
       const intervention: Intervention = { gapId: gap.id, kind: gap.type, priority: d.candidate.priority, text: d.candidate.text, surfacedAt: now };
       this.state.interventions.push(intervention);

@@ -82,6 +82,9 @@ const EMBEDDED_QUESTION = ['dont know if', 'dont know whether', 'not sure if', '
 const INTERNAL_SUBJECT = ['we', 'our', 'us', 'you', 'your', 'i', 'my'];
 const FEASIBILITY = ['technically possible', 'technically feasible', 'we can build it', 'its doable', 'it is doable', 'its feasible', 'it is feasible', 'can be built', 'possible to build', 'we could build it', 'we can technically', 'technically we can', 'technically doable'];
 const LEAP = ['then we should build', 'so we should build', 'lets build', 'we should build it', 'then we should do it', 'so we should do it', 'lets do it', 'then lets go', 'so lets go', 'then lets build', 'so lets just build', 'we should just build', 'then we build it', 'so we build it'];
+const OPEN_TO_ROOM = ['does anyone know', 'anyone know', 'i wonder', 'do we know', 'does anybody know', 'anybody know', 'is there anyone', 'has anyone', 'quick question for anyone'];
+// Verbs that make a hedged statement about a named thing checkable ("I think Teams exposes …").
+const CAPABILITY = /\b(supports?|allows?|exposes?|offers?|provides?|includes?|has|have|can(not|'t)?|doesn'?t|don'?t|works with|integrates? with|lets|limits?|charges?|costs?|requires?|is (available|free|limited|deprecated)|was (deprecated|announced|released))\b/i;
 const ASSUMPTION = ['assume', 'assuming', 'presumably', 'lets say', 'suppose', 'take for granted', 'i bet'];
 
 function sentences(text: string): string[] {
@@ -201,8 +204,10 @@ export class HeuristicAnalyzer implements ConversationAnalyzer {
       const resp = classifyResponse(u.text);
 
       // 1) Responses attach to the most recent compatible open question.
+      let responded = false;
       if (resp || !q) {
         const target = this.pickTarget(u, open, resp?.kind);
+        responded = !!target && (!!resp || (target.kind === 'FACTUAL' && this.isSubstantiveAnswer(u, target)));
         if (target && resp) {
           out.responses.push({
             utteranceId: u.id,
@@ -245,11 +250,33 @@ export class HeuristicAnalyzer implements ConversationAnalyzer {
           researchable,
           relevance: relevanceFor(q.kind, interpreted, state),
           note: `${q.kind.toLowerCase()} question${researchable ? ' about a named/external subject' : ''}${q.embeddedUncertain ? ' (asker uncertain)' : ''}`,
+          openToRoom: !!hasAny(u.text, OPEN_TO_ROOM),
+          origin: 'question',
         });
-        if (q.embeddedUncertain) {
+        const toRoom = !!hasAny(u.text, OPEN_TO_ROOM);
+        // "Does anyone know if…" is an invitation, not an admission; it is handled as open-to-room instead.
+        if (q.embeddedUncertain && !toRoom) {
           out.responses.push({ utteranceId: u.id, targetId: u.id, kind: 'UNCERTAIN', note: 'asker states they do not know' });
         }
         open.unshift({ id: u.id, question: interpreted, askedBy: u.speaker, triggerUtteranceId: u.id, kind: q.kind, utterancesSince: 0 });
+      }
+
+      // 3b) A hedged factual claim about a named thing is a question nobody asked: verify it.
+      if (!q && !responded) {
+        const claim = this.tentativeClaim(u.text);
+        if (claim) {
+          out.questions.push({
+            utteranceId: u.id,
+            kind: 'FACTUAL',
+            interpretedQuestion: claim,
+            researchable: true,
+            relevance: relevanceFor('FACTUAL', claim, state),
+            note: 'tentative factual claim about a named subject',
+            origin: 'tentative_claim',
+          });
+          out.responses.push({ utteranceId: u.id, targetId: u.id, kind: 'WEAK_ANSWER', note: 'stated tentatively' });
+          open.unshift({ id: u.id, question: claim, askedBy: u.speaker, triggerUtteranceId: u.id, kind: 'FACTUAL', utterancesSince: 0 });
+        }
       }
 
       // 4) Statements, conclusion and commitment signals, reasoning leaps.
@@ -288,6 +315,26 @@ export class HeuristicAnalyzer implements ConversationAnalyzer {
     return undefined;
   }
 
+  /** "I think Teams exposes live transcripts to apps." → "Is it true that Teams exposes live transcripts to apps?" */
+  private tentativeClaim(text: string): string | undefined {
+    const hedge = hasAny(text, WEAK);
+    if (!hedge || !CAPABILITY.test(text)) return undefined;
+    const sentence = sentences(text).find((s) => hasAny(s, WEAK) && CAPABILITY.test(s)) ?? text;
+    if (namedEntities(sentence).filter((e) => !['We', 'Our', 'You', 'They'].includes(e)).length === 0) return undefined;
+    if (contentTerms(sentence).length < 3) return undefined;
+    const clause = sentence
+      .replace(/^(so|and|but|well|yeah|ok|okay)[,\s]+/i, '')
+      .replace(/^(i think|i believe|i guess|i assume|i suppose|i reckon|i'?m pretty sure|pretty sure|probably|maybe|perhaps|presumably|as far as i know|afaik|if i remember( correctly)?|iirc)[,\s]+(that\s+)?/i, '')
+      .replace(/[.!]+$/, '')
+      .trim();
+    if (!clause || clause === sentence.replace(/[.!]+$/, '').trim()) {
+      // Hedge was not at the start ("Teams probably supports it"): drop the hedge word in place.
+      const stripped = sentence.replace(new RegExp(`\\b${hedge.replace(/ /g, '\\s+')}\\b[,]?\\s*`, 'i'), '').replace(/[.!]+$/, '').trim();
+      return `Is it true that ${stripped}?`;
+    }
+    return `Is it true that ${clause}?`;
+  }
+
   private isSubstantiveAnswer(u: Utterance, q: OpenQuestionView): boolean {
     if (q.utterancesSince > 2 || q.askedBy === u.speaker) return false;
     const terms = contentTerms(u.text);
@@ -302,7 +349,7 @@ export class HeuristicAnalyzer implements ConversationAnalyzer {
       const p = EMBEDDED_QUESTION.find((e) => n.includes(e));
       if (p) {
         const raw = text.replace(/^.*?\b(if|whether)\s+/i, '');
-        text = raw.charAt(0).toUpperCase() + raw.slice(1).replace(/[.]$/, '') + '?';
+        text = raw.charAt(0).toUpperCase() + raw.slice(1).replace(/[.?]+$/, '') + '?';
       }
     }
     // A pronoun subject ("does it…", "can they…") needs the previous utterance to be standalone.

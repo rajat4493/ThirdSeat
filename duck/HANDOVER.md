@@ -33,6 +33,7 @@ Design rules that matter:
 - **Analyzers only observe; the engine decides.** Heuristic and LLM analyzers emit the same
   signal contract (`src/analysis/types.ts`), so either can drive the engine and the heuristic is
   an automatic fallback.
+- **Timing modes.** Every surfaced item gets `timingMode` (PROACTIVE / REACTIVE / RETROACTIVE), chosen at surfacing time (`GapEngine.surfaceMode`). Factual questions get a hidden *speculative* gap whose research starts immediately. It is promoted when the question qualifies, or discarded when humans answer.
 - **Two-stage detection.** A question opens a *watch*. It becomes a gap only after a qualifying
   signal (uncertainty, deferral, weak answer, or no answer before the window closes).
 - **Research never interrupts on failure.** UNRESOLVED gaps are listed, not surfaced.
@@ -94,7 +95,7 @@ npm start                      # http://127.0.0.1:4317
 ## 5. Development commands
 
 ```bash
-npm test                       # all tests (36): deterministic, no external network
+npm test                       # all tests (44): deterministic, no external network
 npm run typecheck              # tsc --noEmit
 npm run scenario -- all --fixtures         # replay all scenarios with fixture research, print timeline
 npm run scenario -- w01 --real-sources     # rehearsal with live-fetched official docs
@@ -146,6 +147,7 @@ env vars. Sessions are in memory, so restarting the process loses them by design
 | `THIRDSEAT_SOURCE_RULES` | — | JSON array of `{match, tier}` source-ranking rules (prepended to defaults) |
 | `THIRDSEAT_LOG_CONTENT` | `0` | `1` lets server logs include quoted conversation text |
 | `THIRDSEAT_SESSION_TTL_HOURS` | `12` | Idle sessions are deleted after this |
+| `THIRDSEAT_PROACTIVE` | `1` | `0` disables research-at-question-time (proactive mode). With AI on, every factual question costs a web search. |
 | `THIRDSEAT_STT` | `off` | `deepgram` to enable server speech-to-text (explicit opt-in: audio leaves the machine) |
 | `DEEPGRAM_API_KEY` | — | Deepgram credentials (server-side only) |
 | `THIRDSEAT_STT_MODEL` / `THIRDSEAT_STT_LANGUAGE` | `nova-3` / `en` | Transcription model and language |
