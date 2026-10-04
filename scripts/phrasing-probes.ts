@@ -1,6 +1,6 @@
 // Measures how robustly ThirdSeat reads natural phrasings (pre-registered in scenarios/x02-phrasing-probes.json).
 // Each probe runs in a fresh session; a simulated search answers any researchable question, so only judgement is measured.
-// Usage: node scripts/phrasing-probes.ts [--json out.json]
+// Usage: node scripts/phrasing-probes.ts [--ai] [--json out.json]
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { ManualClock } from '../src/clock.ts';
@@ -8,6 +8,10 @@ import { buildEngine } from '../src/app.ts';
 import { newId } from '../src/domain/ids.ts';
 import type { Gap, TimingMode } from '../src/domain/types.ts';
 import type { ResearchTool, ToolResult } from '../src/research/types.ts';
+import { aiFromArgs, aiRunValidity } from './ai-mode.ts';
+
+const llm = aiFromArgs(process.argv);
+const invalid: string[] = [];
 
 const anyAnswer: ResearchTool = {
   id: 'simulated_any',
@@ -21,7 +25,7 @@ const anyAnswer: ResearchTool = {
 
 function fresh() {
   const clock = new ManualClock(1_800_000_000_000);
-  const { engine } = buildEngine({ session: { id: 'p', createdAt: clock.now(), title: 'probe', config: { objective: 'Decide which meeting platform to build on first.', sourceUrls: [] } }, clock, extraTools: [anyAnswer] });
+  const { engine } = buildEngine({ session: { id: 'p', createdAt: clock.now(), title: 'probe', config: { objective: 'Decide which meeting platform to build on first.', sourceUrls: [] } }, clock, extraTools: [anyAnswer], llm, webSearch: false });
   const cards: { mode?: TimingMode; at: number }[] = [];
   engine.on((e) => e.type === 'intervention' && cards.push({ mode: e.gap.timingMode, at: e.intervention.surfacedAt }));
   return { clock, engine, cards };
@@ -40,6 +44,7 @@ async function probeReply(question: string, reply: string): Promise<string> {
     engine.tick();
   }
   await engine.drain();
+  if (llm && !aiRunValidity(engine.log, llm).valid) invalid.push(reply);
   if (immediate) return immediate; // card right after the reply
   return cards[0] ? `${cards[0].mode} (later)` : 'NONE';
 }
@@ -53,6 +58,7 @@ async function probeStatement(text: string): Promise<string> {
     engine.tick();
   }
   await engine.drain();
+  if (llm && !aiRunValidity(engine.log, llm).valid) invalid.push(text);
   return cards[0]?.mode ?? 'NONE';
 }
 
@@ -86,5 +92,9 @@ for (const s of ['dev', 'heldout']) {
 }
 console.log('\nMisses:');
 for (const r of results.filter((x) => !x.pass)) console.log(`  [${r.split}] ${r.category}: “${r.text}” → ${r.actual} (expected ${r.expected})`);
+if (llm) {
+  console.log(`\nAI: ${JSON.stringify(llm.summary())}`);
+  if (invalid.length) console.log(`INVALID AI RUN — ${invalid.length} probe(s) fell back to the no-AI rules; scores are not attributable to AI.`);
+}
 const out = process.argv.indexOf('--json');
-if (out > 0) await writeFile(process.argv[out + 1], JSON.stringify({ ranAt: new Date().toISOString(), results }, null, 2));
+if (out > 0) await writeFile(process.argv[out + 1], JSON.stringify({ ranAt: new Date().toISOString(), ai: llm ? { ...llm.summary(), invalidProbes: invalid } : null, results }, null, 2));

@@ -23,6 +23,8 @@ THIRDSEAT_STT=deepgram npm start     # then choose the audio input when starting
 
 Without it, room listening falls back to Chrome's built-in speech recognition.
 
+Scored AI-vs-no-AI comparison (needs `ANTHROPIC_API_KEY`): `npm run test:ai`
+
 Optional AI mode (sends conversation snippets to Anthropic):
 
 ```bash

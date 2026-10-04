@@ -1,7 +1,7 @@
 // Rigorous scored run of a scenario (default scenarios/x01-three-modes-rigorous.json) against its pre-written answer key.
 // Research results are simulated (marked FIXTURE) so the test isolates *timing and judgement*; two
 // lookups are deliberately slow (held until a given line) to test late answers and cancellation.
-// Usage: node scripts/rigorous-three-modes.ts [scenarios/<file>.json] [--json out.json]
+// Usage: node scripts/rigorous-three-modes.ts [scenarios/<file>.json] [--ai] [--json out.json]
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { ManualClock } from '../src/clock.ts';
@@ -10,6 +10,9 @@ import { newId } from '../src/domain/ids.ts';
 import { coverage, termSet } from '../src/domain/text.ts';
 import type { Confidence, Gap, Intervention } from '../src/domain/types.ts';
 import type { ResearchRequest, ResearchTool, ToolResult } from '../src/research/types.ts';
+import { aiFromArgs, aiRunValidity } from './ai-mode.ts';
+
+const llm = aiFromArgs(process.argv);
 
 interface Entry { key: string; match: string[]; answer: string; confidence: Confidence; hold?: boolean }
 
@@ -63,7 +66,8 @@ const RELEASE_AFTER_LINE: Record<number, string> = SIM.releaseAfterLine ?? {};
 const clock = new ManualClock(Date.UTC(2026, 9, 4, 10, 0, 0));
 const t0 = clock.now();
 const search = new SimulatedSearch(SIM.entries);
-const { engine } = buildEngine({ session: { id: sc.id, createdAt: t0, title: sc.title, config: { objective: sc.objective, sourceUrls: [] } }, clock, extraTools: [search] });
+// --ai: Claude understands the conversation and writes answers; web search stays off so evidence is identical to the no-AI run.
+const { engine, analyzerId } = buildEngine({ session: { id: sc.id, createdAt: t0, title: sc.title, config: { objective: sc.objective, sourceUrls: [] } }, clock, extraTools: [search], llm, webSearch: false });
 
 const cards: { line: number; intervention: Intervention; gap: Gap }[] = [];
 let currentLine = -1;
@@ -164,13 +168,18 @@ if (sc.answerKey.noOtherCards) {
 }
 
 const passCount = rows.filter((r) => r.pass).length;
-console.log(`\n${sc.title}\nobjective: ${sc.objective}\n`);
+console.log(`\n${sc.title}\nobjective: ${sc.objective}\nanalyzer: ${analyzerId}\n`);
 console.log('Timeline of cards:');
 for (const c of cards) console.log(`  line ${String(c.line).padStart(2)} [${c.gap.timingMode}] ${c.gap.type}: ${c.intervention.text.replace(/\n/g, ' / ').slice(0, 150)}`);
 console.log('\nScore:');
 for (const r of rows) console.log(`  ${r.pass ? 'PASS' : 'FAIL'}  ${r.id.padEnd(3)} expected: ${r.expected}\n             actual:   ${r.actual}`);
 console.log(`\n${passCount}/${rows.length} checks passed. Cards shown: ${cards.length}. Research calls: ${search.calls.length} (${search.calls.filter((c) => !c.key).length} with no result).`);
+const validity = llm ? aiRunValidity(engine.log, llm) : { valid: true };
+if (llm) {
+  console.log(`AI: ${JSON.stringify(llm.summary())}`);
+  if (!validity.valid) console.log(`INVALID AI RUN — score not attributable to AI: ${validity.reason}`);
+}
 
 const out = process.argv.indexOf('--json');
-if (out > 0) await writeFile(process.argv[out + 1], JSON.stringify({ ranAt: new Date().toISOString(), passCount, total: rows.length, rows, cards: cards.map((c) => ({ line: c.line, type: c.gap.type, mode: c.gap.timingMode, text: c.intervention.text })), researchCalls: search.calls }, null, 2));
-process.exit(passCount === rows.length ? 0 : 1);
+if (out > 0) await writeFile(process.argv[out + 1], JSON.stringify({ ranAt: new Date().toISOString(), analyzer: analyzerId, ai: llm ? { ...llm.summary(), ...validity } : null, passCount, total: rows.length, rows, cards: cards.map((c) => ({ line: c.line, type: c.gap.type, mode: c.gap.timingMode, text: c.intervention.text })), researchCalls: search.calls }, null, 2));
+process.exit(passCount === rows.length && validity.valid ? 0 : 1);

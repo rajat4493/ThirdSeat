@@ -65,8 +65,18 @@ behaviours are right on an unseen conversation in no-AI mode.
   generalise: 61% on held-out phrasings, and an unseen conversation lost its most important open
   question (F7, F8). Patching more phrases would only chase the test set.
 - This is the job the AI analyzer exists for. The next real step is to run these exact files in AI
-  mode and compare: `THIRDSEAT_LLM=anthropic node scripts/rigorous-three-modes.ts scenarios/x03-confirmation-payments.json`
-  (the harness needs a small change to use the AI analyzer; see the ledger).
+  mode and compare: `npm run test:ai` (needs `ANTHROPIC_API_KEY`).
+
+## AI-mode comparison (ready, not yet run)
+
+- `--ai` swaps in Claude for understanding the conversation and writing answers. **Search stays
+  simulated**, so the two modes differ only in understanding.
+- x01, x03 and the probes are fair tests for the AI: the no-AI rules were fixed against them, but the
+  AI instructions were not, and **will not be changed before the first scored AI run**.
+- **Guard against a misleading score:** if any AI call fails, ThirdSeat falls back to the no-AI
+  rules. The harness marks such a run INVALID instead of reporting it as an AI score. This was
+  verified with a deliberately invalid key: all 34 AI calls failed, and the run was marked INVALID
+  rather than showing "15/15".
 
 ## Reproduce
 

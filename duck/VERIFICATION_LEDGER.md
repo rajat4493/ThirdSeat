@@ -37,6 +37,7 @@ Last updated: 2026-10-02 (V0 build + live audio input).
 | 12h | Weak no-AI evidence does not interrupt proactively; it is listed quietly | ✅ | Live UI run against real Microsoft docs: `docs/evidence/timing-modes-live.png` (card in "open", none in "now") |
 | 12j | All three modes in one conversation, scored against a pre-committed answer key (no-AI mode) | 🟡 | `docs/evidence/RIGOROUS_TEST_REPORT.md`: x01 15/15 after fixes; **fresh unseen x03: 6/9** with a polluted conclusion card. Timing logic sound; language understanding is the weak point. |
 | 12k | Robust to natural phrasing (no-AI mode) | ⛔ | Pre-registered probes: dev 28/28, **held-out 17/28** (optimistic). Known false stand-downs remain (report F3, F7). |
+| 12l | AI mode understands natural phrasing better than the no-AI rules (x01, x03, probes) | ⛔ | Harness ready (`npm run test:ai`), with a guard that invalidates any run where AI calls fell back to the no-AI rules (verified with a bad key: 34/34 calls failed → marked INVALID). **Not run: no API key in this environment.** |
 | 12i | Proactive mode helps rather than distracts in a real conversation | ⛔ | Needs live validation; watch the proactive dismiss rate in the report's per-mode counts. |
 
 ## Real research (not fixtures)
