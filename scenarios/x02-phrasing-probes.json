@@ -1,0 +1,38 @@
+{
+  "id": "x02-phrasing-probes",
+  "note": "Written BEFORE any fix. 'dev' phrasings may inform fixes; 'heldout' phrasings must not be used to tune and are only measured. Each reply follows the question 'Does Zoom offer live captions to apps?' 4 s later (other speaker). Claims are standalone utterances.",
+  "question": "Does Zoom offer live captions to apps?",
+  "replies": {
+    "UNCERTAIN": {
+      "expectMode": "REACTIVE",
+      "dev": ["Hmm, couldn't tell you offhand.", "No clue.", "I genuinely don't know.", "Beats me.", "Not a clue, sorry.", "I have no idea, honestly.", "Haven't the faintest.", "That I don't know.", "Good question, I don't know.", "I'm drawing a blank."],
+      "heldout": ["Your guess is as good as mine.", "No idea off the top of my head.", "I really couldn't say.", "Hmm, not something I know.", "I'd be guessing.", "Pass.", "Don't ask me!", "I'm not the right person to answer that.", "Honestly I have no clue.", "Not sure, to be honest."]
+    },
+    "DEFERRAL": {
+      "expectMode": "REACTIVE",
+      "dev": ["Let's look into it after this call.", "I'll check and get back to you.", "Let's take that offline.", "Can someone find out after the meeting?", "Let's park that for now and check later."],
+      "heldout": ["I'll dig into it tomorrow.", "Let me find out and report back.", "We should verify that afterwards.", "Add it to the follow-ups.", "I'll ping the vendor about it."]
+    },
+    "WEAK": {
+      "expectMode": "REACTIVE",
+      "dev": ["I think so.", "Probably, yeah.", "I believe it does.", "Should be fine, I think.", "Pretty sure it does."],
+      "heldout": ["I'd assume so.", "If I remember right, yes.", "Last I checked it did, but that was a while ago.", "Maybe? I think they added it.", "I'm fairly sure it does."]
+    },
+    "CONFIDENT": {
+      "expectMode": "NONE",
+      "dev": ["Yes, we use it in production.", "No, they removed it last year, I read the changelog."],
+      "heldout": ["Yep, it does — I built an integration on it.", "Definitely, it's in their docs."]
+    }
+  },
+  "claims": {
+    "expectMode": "PROACTIVE",
+    "dev": ["Meet probably caps add-ons at a hundred participants, I think.", "I think Zoom charges extra for the media streams.", "Slack probably doesn't allow bots in huddles.", "I believe Teams limits bots to one per meeting."],
+    "heldout": ["Zoom's API is rate-limited to something like ten calls a second, I think.", "If I remember right, Meet add-ons need Workspace admin approval.", "Notion probably has a webhook for that.", "I assume Webex has a similar API."]
+  },
+  "nonClaims": {
+    "expectMode": "NONE",
+    "note": "Hedged opinions/plans, not checkable external facts.",
+    "dev": ["I think we should start with Zoom.", "Probably the onboarding needs work."],
+    "heldout": ["I guess customers will like it.", "Maybe we ship in March."]
+  }
+}
