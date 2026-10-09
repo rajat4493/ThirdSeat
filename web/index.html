@@ -11,6 +11,9 @@
     <div class="brand">ThirdSeat <span class="tag">live gap filler · V0</span></div>
     <div id="objective" class="objective hidden"></div>
     <div class="top-actions">
+      <span id="speaking" class="speaking hidden">🔊 ThirdSeat is speaking…</span>
+      <select id="voiceOut" class="hidden" title="Where ThirdSeat's voice plays (choose a virtual microphone to speak into a web call)"></select>
+      <button id="voiceBtn" class="hidden"></button>
       <span id="mode" class="mode"></span>
       <button id="endBtn" class="hidden">End session</button>
     </div>
@@ -34,6 +37,9 @@
         <option value="off">No audio — I'll type</option>
       </select>
       <span class="muted small">For calls, use headphones so the microphone doesn't pick up the call twice.</span>
+    </label>
+    <label class="check"><input type="checkbox" id="voiceOn" /> ThirdSeat speaks in the meeting
+      <span class="muted small">— only on gap points (answers, checked assumptions, dropped questions, drift, what's still open). Say “ThirdSeat, quiet” to mute.</span>
     </label>
     <div class="row">
       <button id="startBtn" class="primary">Start live session</button>

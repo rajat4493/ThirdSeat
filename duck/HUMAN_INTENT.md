@@ -81,7 +81,14 @@ follow-up work.
 
 1. Prefer "I couldn't verify this reliably" over an unsupported answer. Never fabricate certainty.
 2. Minimum interruption, maximum contribution. The AI may — and usually should — stay silent.
-3. Interventions appear privately in the product UI. The AI does not speak into the meeting.
+3. ~~Interventions appear privately in the product UI. The AI does not speak into the meeting.~~
+   **Amended by the human, 2026-10-09:** "Add complete voice participation … it should actually discuss
+   like the person in the team taking part in conversation, however only on points as we discussed
+   above in the project definition." ThirdSeat may now **speak in the meeting as a team member**, but
+   **only about gaps** (answers to open questions, checked assumptions, dropped threads, material drift,
+   open items at a conclusion, and follow-ups about its own contributions when addressed). It does not
+   chat, give opinions, summarise or chair. Silence stays the default. Voice is opt-in per session and
+   can be muted at any time.
 4. Do not expose hidden chain-of-thought; store concise machine-readable reasons.
 5. Timing matters: measure time-to-useful-intervention from day one.
 6. At least one real end-to-end flow (conversation → gap → research → real external

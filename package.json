@@ -14,7 +14,9 @@
     "scenario": "node scripts/run-scenario.ts",
     "e2e:real": "node scripts/e2e-real-research.ts",
     "e2e:audio": "node scripts/e2e-audio-browser.ts",
-    "test:ai": "node scripts/rigorous-three-modes.ts scenarios/x01-three-modes-rigorous.json --ai --json docs/evidence/ai-x01.json; node scripts/rigorous-three-modes.ts scenarios/x03-confirmation-payments.json --ai --json docs/evidence/ai-x03.json; node scripts/phrasing-probes.ts --ai --json docs/evidence/ai-phrasing-probes.json"
+    "test:ai": "node scripts/rigorous-three-modes.ts scenarios/x01-three-modes-rigorous.json --ai --json docs/evidence/ai-x01.json; node scripts/rigorous-three-modes.ts scenarios/x03-confirmation-payments.json --ai --json docs/evidence/ai-x03.json; node scripts/phrasing-probes.ts --ai --json docs/evidence/ai-phrasing-probes.json",
+    "voice:sim": "node scripts/voice-simulation.ts",
+    "e2e:voice": "node scripts/e2e-voice-browser.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

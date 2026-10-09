@@ -9,6 +9,7 @@
 
 ## IN SCOPE (V0)
 
+- Voice participation (opt-in): speaks gap contributions aloud with turn-taking, answers when addressed within scope, never chats
 - Live conversation ingestion (via a replaceable `ConversationSource`: simulation, typed input, live audio: room microphone or browser-tab call audio, with server speech-to-text and speaker separation)
 - Objective awareness (optional session objective)
 - Conversation state (compact, live)
@@ -27,7 +28,7 @@
 - Generic meeting notes
 - Meeting transcription product (transcript is an input, never a deliverable)
 - Post-meeting summaries / minutes
-- Autonomous voice participation
+- ~~Autonomous voice participation~~ → moved IN SCOPE on 2026-10-09 (human request), limited to gap points; see decision log
 - Calendar integrations
 - Full Teams/Meet/Zoom integration
 - Enterprise MCP ecosystem
@@ -63,4 +64,5 @@
 | 2026-10-02 | Charts in session-end view | **Rejected** | Analytics clutter; counts and lists suffice for validation. |
 | 2026-10-02 | "Audio enablement" (human request) | **Accepted as audio *input*** | Human chose better listening (room mic + call tab, speaker separation) over speaking. Directly serves gap detection. Server speech-to-text behind `SpeechToTextProvider`. |
 | 2026-10-02 | ThirdSeat speaking (private or into the meeting) | **Not built** | Not chosen by the human; speaking into the meeting stays OUT OF SCOPE FOR V0. |
+| 2026-10-09 | Complete voice participation (human request) | **Accepted, bounded** | Speaks only on gap points from the project definition; turn-taking, barge-in, self-echo filtering, scoped replies when addressed; opt-in, mutable. Speaking *into a web call* needs audio routing (virtual audio device); a meeting-bot remains FUTURE. |
 | 2026-10-02 | Native Teams/Zoom/Meet integration for audio | **Deferred** | Browser tab capture covers web calls for validation; platform bots remain FUTURE. |

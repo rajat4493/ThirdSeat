@@ -40,6 +40,9 @@ const ago = (t) => {
 // ───────────── setup ─────────────
 
 const config = await api('/api/config');
+const { createVoicePlayer, listOutputDevices } = await import('/voice.js');
+let voicePlayer = null;
+let voiceState = { enabled: false, muted: false };
 $('mode').textContent = `${config.llm ? `AI: ${config.llm.id}${config.llm.webSearch ? ' + web search' : ''}` : 'AI off · heuristics + supplied sources'} · ${config.stt ? `audio: ${config.stt.id}` : 'audio: browser only'}`;
 const sttNote = config.stt
   ? ` Audio: speech is transcribed by ${config.stt.id}; meeting audio is sent there.`
@@ -60,6 +63,8 @@ async function start(body) {
   const snap = await api('/api/sessions', body);
   session = snap.session;
   session.audioMode = body.audioMode;
+  voiceState = snap.voice ?? voiceState;
+  setupVoice();
   startAt = Date.now();
   $('setup').classList.add('hidden');
   $('live').classList.remove('hidden');
@@ -75,13 +80,13 @@ async function start(body) {
 }
 
 $('startBtn').addEventListener('click', () =>
-  start({ title: $('title').value, objective: $('obj').value, sourceUrls: $('urls').value.split(/\s+/).filter(Boolean), audioMode: $('audioMode').value })
+  start({ title: $('title').value, objective: $('obj').value, sourceUrls: $('urls').value.split(/\s+/).filter(Boolean), audioMode: $('audioMode').value, voice: $('voiceOn').checked })
     .then(() => $('audioMode').value !== 'off' && toggleListening())
     .catch((e) => alert(e.message)),
 );
 $('rehearseBtn').addEventListener('click', async () => {
   const s = config.scenarios.find((x) => x.id === $('scenario').value);
-  await start({ title: `Rehearsal: ${s.title}`, objective: s.objective, sourceUrls: s.sourceUrls });
+  await start({ title: `Rehearsal: ${s.title}`, objective: s.objective, sourceUrls: s.sourceUrls, voice: $('voiceOn').checked });
   await api(`/api/sessions/${session.id}/simulate`, { scenarioId: s.id, speed: Number($('speed').value) });
 });
 
@@ -90,6 +95,13 @@ $('rehearseBtn').addEventListener('click', async () => {
 function connect() {
   events = new EventSource(`/api/sessions/${session.id}/events`);
   events.addEventListener('caption', (m) => showCaption(JSON.parse(m.data)));
+  events.addEventListener('speak', (m) => voicePlayer?.speak(JSON.parse(m.data).request));
+  events.addEventListener('speak-stop', () => voicePlayer?.stop());
+  events.addEventListener('voice-state', (m) => {
+    const { enabled, muted } = JSON.parse(m.data);
+    voiceState = { enabled, muted };
+    renderVoiceButton();
+  });
   events.addEventListener('utterance', (m) => {
     const { utterance } = JSON.parse(m.data);
     showCaption(null);
@@ -116,7 +128,7 @@ function connect() {
 }
 
 function renderTranscript(u) {
-  const row = el('div', { class: 'utt', 'data-id': u.id }, el('span', { class: 't' }, fmtClock(u.at)), el('span', { class: 's', 'data-speaker': u.speaker, title: 'Click to rename', onclick: () => renameSpeaker(u.speaker) }, displayName(u.speaker)), el('span', { class: 'x' }, u.text));
+  const row = el('div', { class: `utt${u.speaker === 'ThirdSeat' ? ' own' : ''}`, 'data-id': u.id }, el('span', { class: 't' }, fmtClock(u.at)), el('span', { class: 's', 'data-speaker': u.speaker, title: 'Click to rename', onclick: () => renameSpeaker(u.speaker) }, displayName(u.speaker)), el('span', { class: 'x' }, u.text));
   const box = $('transcript');
   const stick = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
   box.append(row);
@@ -288,7 +300,10 @@ function startBrowserRecognition() {
       if (r.isFinal) {
         showCaption(null);
         api(`/api/sessions/${session.id}/utterances`, { speaker: 'Room', text });
-      } else showCaption({ speaker: 'Room', text });
+      } else {
+        showCaption({ speaker: 'Room', text });
+        reportActivity(text);
+      }
     }
   };
   recog.onend = () => active && recog.start(); // keep listening
@@ -350,6 +365,48 @@ function renameSpeaker(s) {
   for (const n of document.querySelectorAll(`.utt .s[data-speaker="${CSS.escape(s)}"]`)) n.textContent = speakerNames[s];
 }
 
+// ───────────── voice participation ─────────────
+
+let lastActivityPost = 0;
+function reportActivity(text) {
+  // Someone is talking: lets the server hold or stop ThirdSeat's speech (throttled).
+  if (!session || Date.now() - lastActivityPost < 700) return;
+  lastActivityPost = Date.now();
+  fetch(`/api/sessions/${session.id}/activity`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text }) }).catch(() => {});
+}
+
+function renderVoiceButton() {
+  const b = $('voiceBtn');
+  b.classList.remove('hidden');
+  b.classList.toggle('muted', voiceState.enabled && voiceState.muted);
+  b.textContent = !voiceState.enabled ? '🔈 Voice off' : voiceState.muted ? '🔇 Muted' : '🔊 Voice on';
+  b.title = !voiceState.enabled ? 'Let ThirdSeat speak on gap points' : voiceState.muted ? 'Unmute ThirdSeat' : 'Mute ThirdSeat';
+}
+
+async function setupVoice() {
+  voicePlayer = createVoicePlayer({
+    sessionId: session.id,
+    serverVoice: !!config.tts,
+    getSinkId: () => $('voiceOut').value || undefined,
+    onState: (on) => $('speaking').classList.toggle('hidden', !on),
+  });
+  renderVoiceButton();
+  $('voiceBtn').onclick = async () => {
+    const body = !voiceState.enabled ? { enabled: true, muted: false } : { muted: !voiceState.muted };
+    voiceState = await api(`/api/sessions/${session.id}/voice`, body);
+    if (voiceState.muted) voicePlayer.stop();
+    renderVoiceButton();
+  };
+  // Output routing needs the server voice (browser speech synthesis cannot pick a device).
+  if (config.tts && typeof HTMLMediaElement.prototype.setSinkId === 'function') {
+    const outs = await listOutputDevices();
+    if (outs.length) {
+      $('voiceOut').replaceChildren(el('option', { value: '' }, 'Default speakers'), ...outs.filter((d) => d.deviceId !== 'default').map((d) => el('option', { value: d.deviceId }, d.label || 'Output device')));
+      $('voiceOut').classList.remove('hidden');
+    }
+  }
+}
+
 // ───────────── end / report ─────────────
 
 const VALIDATION_QUESTIONS = [
@@ -363,6 +420,7 @@ const VALIDATION_QUESTIONS = [
 
 $('endBtn').addEventListener('click', async () => {
   if (listening) await toggleListening();
+  voicePlayer?.stop();
   const report = await api(`/api/sessions/${session.id}/end`, {});
   showReport(report);
 });
@@ -394,6 +452,13 @@ function showReport(r) {
       metric(secs(L.timeToUsefulIntervention.medianMs), `median time-to-intervention (p90 ${secs(L.timeToUsefulIntervention.p90Ms)})`),
       metric(`${m.surfacedWhileTopicLive}/${m.interventionsSurfaced}`, 'surfaced while topic still live'),
       metric(m.driftInterventions + m.conclusionInterventions, 'drift / conclusion interventions'),
+      ...(r.voice
+        ? [
+            metric(`${r.voice.spokenContributions} · ${r.voice.spokenReplies}`, 'spoken contributions · spoken replies'),
+            metric(`${r.voice.interrupted} · ${r.voice.droppedMomentPassed} · ${r.voice.screenOnly}`, 'voice: interrupted · moment passed · screen-only'),
+            metric(secs(r.voice.medianTriggerToSpeechMs), 'median question → ThirdSeat speaking'),
+          ]
+        : []),
       ...['PROACTIVE', 'REACTIVE', 'RETROACTIVE'].map((k) =>
         metric(`${r.timing[k].surfaced} · ${secs(r.timing[k].timeToIntervention.medianMs)}`, `${k.toLowerCase()} cards · median time-to-intervention`),
       ),

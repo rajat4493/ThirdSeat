@@ -112,7 +112,7 @@ function startsWithAny(n: string, list: readonly string[]): string | undefined {
   return list.find((p) => n === p || n.startsWith(p + ' '));
 }
 
-const SENTENCE_STARTERS = new Set(
+export const SENTENCE_STARTERS = new Set(
   (
     'the a an this that these those it its we our us you your i my they their he she there here what which who whom whose when where why how ' +
     'can could would should will shall may might must do does did is are was were be has have had not no yes yeah yep ok okay so and but or if ' +

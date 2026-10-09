@@ -1,0 +1,128 @@
+{
+  "ranAt": "2026-10-09T15:22:23.737Z",
+  "analyzer": "heuristic",
+  "spoken": [
+    {
+      "line": 4,
+      "kind": "contribution",
+      "text": "On does Google Meet's API give apps live captions during a call — Meet Media API gives apps real-time media (Developer Preview)."
+    },
+    {
+      "line": 10,
+      "kind": "contribution",
+      "text": "I looked that up — Usage-based; per-minute pricing listed on the RTMS page."
+    },
+    {
+      "line": 21,
+      "kind": "contribution",
+      "text": "I can take that one. Meet add-ons are desktop-only."
+    },
+    {
+      "line": 31,
+      "kind": "contribution",
+      "text": "Before we decide — we never settled why would a team pay for this when Zoom's AI Companion is already inc…. Does that change anything?"
+    },
+    {
+      "line": 32,
+      "kind": "contribution",
+      "text": "Going back to is Zoom's real-time media streams feature generally available or stil… — RTMS is generally available."
+    },
+    {
+      "line": 34,
+      "kind": "reply",
+      "intent": "SOURCE",
+      "text": "That's from Docs: zoom-beta. The link is on screen."
+    },
+    {
+      "line": 35,
+      "kind": "reply",
+      "intent": "CONFIDENCE",
+      "text": "Pretty sure — an official source says it directly."
+    },
+    {
+      "line": 36,
+      "kind": "reply",
+      "intent": "OUT_OF_SCOPE",
+      "text": "That one's yours — I'll jump in on open questions and facts."
+    },
+    {
+      "line": 37,
+      "kind": "reply",
+      "intent": "OPEN_ITEMS",
+      "text": "Still open: why would a team pay for this when Zoom's AI Companion is already inc…; do we have budget for a contractor this quarter? (context: \"Yep.\"); does Meet expose speaker names in the captions feed."
+    }
+  ],
+  "metrics": {
+    "spokenContributions": 5,
+    "spokenReplies": 4,
+    "interrupted": 4,
+    "droppedMomentPassed": 1,
+    "screenOnly": 1,
+    "echoDropped": 0,
+    "addressed": {
+      "SOURCE": 1,
+      "CONFIDENCE": 1,
+      "OUT_OF_SCOPE": 1,
+      "OPEN_ITEMS": 1,
+      "THANKS": 1
+    },
+    "triggerToSpeechMs": [
+      15500,
+      6500,
+      1500,
+      143500
+    ]
+  },
+  "checks": [
+    {
+      "name": "never starts speaking while a person is talking",
+      "pass": true,
+      "detail": "9 spoken turns, none over a human"
+    },
+    {
+      "name": "every unsolicited spoken turn is a surfaced gap point",
+      "pass": true,
+      "detail": "all contributions map to surfaced gaps"
+    },
+    {
+      "name": "silent on negative controls",
+      "pass": true,
+      "detail": "4 control gap(s), none spoken"
+    },
+    {
+      "name": "unsolicited turns paced (≥ cooldown apart)",
+      "pass": true,
+      "detail": "5 contributions"
+    },
+    {
+      "name": "addressed: source",
+      "pass": true,
+      "detail": "That's from Docs: zoom-beta. The link is on screen."
+    },
+    {
+      "name": "addressed: confidence",
+      "pass": true,
+      "detail": "Pretty sure — an official source says it directly."
+    },
+    {
+      "name": "addressed: out of scope (opinion)",
+      "pass": true,
+      "detail": "That one's yours — I'll jump in on open questions and facts."
+    },
+    {
+      "name": "addressed: open items",
+      "pass": true,
+      "detail": "Still open: why would a team pay for this when Zoom's AI Companion is already inc…; do we have budget for a contractor this quarter? (context: \"Yep.\"); does Meet expose speaker names in the captions feed."
+    },
+    {
+      "name": "addressed: thanks → silence",
+      "pass": true,
+      "detail": "(silence)"
+    },
+    {
+      "name": "addressed lines not analysed as conversation",
+      "pass": true,
+      "detail": "none became gaps"
+    }
+  ]
+}

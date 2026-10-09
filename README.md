@@ -10,7 +10,7 @@ Not a note taker, transcriber or summariser. See [`duck/HUMAN_INTENT.md`](duck/H
 ```bash
 npm install
 npm start            # http://127.0.0.1:4317
-npm test             # 45 deterministic tests
+npm test             # 59 deterministic tests
 npm run e2e:real     # real-retrieval proof run → docs/evidence/
 ```
 
@@ -24,6 +24,10 @@ THIRDSEAT_STT=deepgram npm start     # then choose the audio input when starting
 Without it, room listening falls back to Chrome's built-in speech recognition.
 
 Scored AI-vs-no-AI comparison (needs `ANTHROPIC_API_KEY`): `npm run test:ai`
+
+Voice participation: tick **"ThirdSeat speaks in the meeting"** when starting a session. It speaks only on
+gap points, waits for pauses, stops when interrupted, and answers when addressed ("ThirdSeat, where's that from?").
+Optional server voice: `THIRDSEAT_TTS=deepgram`.
 
 Optional AI mode (sends conversation snippets to Anthropic):
 

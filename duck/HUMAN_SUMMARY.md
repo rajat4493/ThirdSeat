@@ -29,6 +29,12 @@ While you talk, ThirdSeat:
     there, so it appears instantly.
   - *Retroactive:* if an answer only arrives after you've moved on, it says "Back to your earlier
     question…". It also brings back dropped questions when you start deciding.
+- **Can speak in the meeting like a teammate (opt-in).** Tick "ThirdSeat speaks" when starting a
+  session. It says its contributions out loud, but only gap points (answers, checked assumptions,
+  forgotten questions, drift, what's still open). It waits for a pause, never talks over anyone, stops
+  if someone starts talking, and stays quiet otherwise. You can talk to it: "ThirdSeat, where's that
+  from?", "how sure are you?", "ThirdSeat, check whether…", "what's still open?", "ThirdSeat, quiet".
+  It politely declines anything outside its job.
 - **Stays quiet when you've got it.** If someone answers confidently, it stands down. If someone
   answers while it is still researching, it cancels the research and shows nothing.
 - **Remembers important questions you dropped.** "Why wouldn't Microsoft just build this?" gets
@@ -56,7 +62,7 @@ does not include the transcript.
 
 ## What actually works (proven)
 
-- All 10 required behaviours, as repeatable automated tests (45 tests in total, all passing).
+- All 10 required behaviours, as repeatable automated tests (59 tests in total, all passing).
 - A real end-to-end run with no faked answers: a question in the conversation became a gap.
   ThirdSeat fetched the official Microsoft docs live, quoted the relevant passage, and showed it
   about 0.3 seconds after the question was left unanswered. Every quoted passage was checked
@@ -66,6 +72,10 @@ does not include the transcript.
 
 - **Audio listening works from microphone to card.** In a real browser, microphone audio and call-tab
   audio were captured, sent to the server, split by speaker and turned into gap cards.
+
+- **Voice participation works end to end in the browser**: it spoke at the right moment, answered
+  "what's still open?", stopped when interrupted, ignored its own voice and muted on command.
+  (The test browser has no speakers, so what it "said" was recorded rather than heard.)
 
 ## What is mocked?
 

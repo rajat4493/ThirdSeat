@@ -1,0 +1,19 @@
+{
+  "ranAt": "2026-10-09T15:24:00.484Z",
+  "note": "Headless browser: speech output recorded by a stub (no audio device). Turn-taking, addressing, interruption and echo handling are real.",
+  "spokenDuringRehearsal": [
+    "Sounds like we're close. Still open: Who would actually pay for this — team leads or the company; Why wouldn't Microsoft just build this into Copilot."
+  ],
+  "addressedReply": "Still open: Who would actually pay for this — team leads or the company? Why wouldn't Microsoft just build this into Copilot?",
+  "interruption": {
+    "cancelCallsBefore": 1,
+    "cancelCallsAfter": 2
+  },
+  "ownVoiceHeardBackAddedAsRoomLine": false,
+  "muteButtonAfterVoiceCommand": "🔇 Muted",
+  "thirdSeatTranscriptLines": [
+    "Sounds like we're close. Still open: Who would actually pay for this — team leads or the company; Why wouldn't Microsoft just build this into Copilot.",
+    "Still open: Who would actually pay for this — team leads or the company? Why wouldn't Microsoft just build this into Copilot?"
+  ],
+  "pageErrors": []
+}

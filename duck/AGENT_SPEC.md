@@ -74,6 +74,20 @@ Guardrails: research done ahead of time is invisible and discarded if a human an
 contributions pass the same priority threshold, so weak (UNVERIFIED) evidence is listed without
 interrupting. `THIRDSEAT_PROACTIVE=0` disables advance research.
 
+### 1.3b Voice participation (human request, 2026-10-09)
+
+ThirdSeat can take part in the meeting by voice, like a team member, **only on gap points**.
+
+| Aspect | Behaviour |
+|---|---|
+| What it says unprompted | The same contributions it surfaces as cards: answers (HIGH/LIKELY confidence only, never UNVERIFIED), checked assumptions, dropped threads at decision points, material drift, open items at a conclusion, conservative reasoning gaps. One short spoken turn each (≤ 40 words). |
+| Phrasing | Teammate style per timing mode ("I can take that one…", "I checked that one…", "Going back to the question about Zoom — …", "Before we decide — we never settled this: …?"). With AI, Claude may rephrase, but any number or name not present in the source rejects the rephrasing (template used instead). |
+| Turn-taking | Speaks only after ≥ 1.5 s of silence; never starts over a person; stops mid-sentence when someone starts talking (barge-in) and does not repeat. Unsolicited turns ≥ 30 s apart. Not spoken within 20 s → the moment has passed (card stays on screen). |
+| Addressed by name | Vocative only ("ThirdSeat, …", "…, ThirdSeat?"). In scope: where an answer came from, how sure it is, "that's wrong" (flags INCORRECT), "what's still open?", "repeat", "check/look up X" (researched, answer spoken), "quiet" (mute) and "you can talk again". Anything else: "That one's yours — I'll jump in on open questions and facts." "Thanks" gets silence. Addressed lines are never analysed as conversation. |
+| Hearing itself | Heard text that mostly repeats its own recent speech is dropped (in both utterances and live captions). |
+| Control | Off by default; switched on per session; Mute button; "ThirdSeat, quiet". |
+| Output | Browser built-in voices (default) or a server voice (Deepgram Aura), which can be routed to any output device, e.g. a virtual microphone for a web call. |
+
 ### 1.4 Open-thread lifecycle
 
 Strategic/important question raised → acknowledged or left → conversation moves on → kept

@@ -19,6 +19,9 @@ import { WebSocketServer } from 'ws';
 import { DeepgramStt } from '../audio/deepgram.ts';
 import type { SpeechToTextProvider } from '../audio/stt.ts';
 import { AudioConversationSource } from '../conversation/audio-source.ts';
+import { VoiceAgent, type VoiceEvent } from '../voice/voice-agent.ts';
+import { DeepgramTts, type TextToSpeech } from '../voice/tts.ts';
+import type { IncomingUtterance } from '../conversation/sources.ts';
 
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const WEB = join(ROOT, 'web');
@@ -46,6 +49,11 @@ const stt: SpeechToTextProvider | undefined =
         language: process.env.THIRDSEAT_STT_LANGUAGE,
       })
     : undefined;
+// Server voice (optional). Without it the browser's built-in voices speak.
+const tts: TextToSpeech | undefined =
+  (process.env.THIRDSEAT_TTS ?? 'off').toLowerCase() === 'deepgram'
+    ? new DeepgramTts({ apiKey: process.env.DEEPGRAM_API_KEY ?? '', voice: process.env.THIRDSEAT_TTS_VOICE, url: process.env.THIRDSEAT_TTS_URL })
+    : undefined;
 if (stt && !process.env.DEEPGRAM_API_KEY) console.warn('[thirdseat] THIRDSEAT_STT=deepgram but DEEPGRAM_API_KEY is not set');
 
 interface LiveSession {
@@ -59,6 +67,12 @@ interface LiveSession {
   lastActivity: number;
   humanValidation?: Record<string, string>;
   audioStats: { provider?: string; bytes: number; sttLatencyMs: number[] };
+  voice: VoiceAgent;
+  voiceTimer: NodeJS.Timeout;
+  /** Text of each spoken turn, for the server voice endpoint. */
+  speech: Map<string, string>;
+  /** Every heard or typed utterance enters here: the voice agent filters its own echo and requests addressed to it. */
+  deliver: (u: IncomingUtterance) => void;
 }
 
 const sessions = new Map<string, LiveSession>();
@@ -105,6 +119,12 @@ function createSession(body: Record<string, unknown>): LiveSession {
   };
   const built = buildEngine({ session, clock: realClock, llm, webSearch, localDocs, config: { proactiveResearch: process.env.THIRDSEAT_PROACTIVE !== '0' } });
   const source = new ManualConversationSource();
+  const voice = new VoiceAgent({
+    engine: built.engine,
+    clock: realClock,
+    llm,
+    config: { enabled: body.voice === true, ...(str(body.voiceName, 40) ? { names: [str(body.voiceName, 40), 'ThirdSeat', 'Third Seat'] } : {}) },
+  });
   const live: LiveSession = {
     session,
     built,
@@ -113,9 +133,16 @@ function createSession(body: Record<string, unknown>): LiveSession {
     timer: setInterval(() => built.engine.tick(), 1000),
     lastActivity: Date.now(),
     audioStats: { bytes: 0, sttLatencyMs: [] },
+    voice,
+    voiceTimer: setInterval(() => voice.tick(), 250),
+    speech: new Map(),
+    deliver: (u) => {
+      if (voice.receive(u) === 'pass') built.engine.ingest(u);
+    },
   };
-  source.start((u) => built.engine.ingest(u));
+  source.start(live.deliver);
   built.engine.on((e) => broadcast(live, e));
+  voice.on((e) => broadcastVoice(live, e));
   sessions.set(session.id, live);
   log(`session ${session.id} created (analyzer=${built.analyzerId}, tools=${built.tools.map((t) => t.id).join(',')}, sources=${urls.length})`);
   return live;
@@ -124,6 +151,20 @@ function createSession(body: Record<string, unknown>): LiveSession {
 function broadcast(live: LiveSession, e: EngineEvent): void {
   live.lastActivity = Date.now();
   if (e.type === 'log') log(`${live.session.id} ${LOG_CONTENT ? e.message : e.message.replace(/"[^"]*"|“[^”]*”/g, '"…"')}`);
+  const payload = `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`;
+  for (const c of live.clients) c.write(payload);
+}
+
+function broadcastVoice(live: LiveSession, e: VoiceEvent): void {
+  if (e.type === 'voice-log') {
+    log(`${live.session.id} voice: ${LOG_CONTENT ? e.message : e.message.replace(/"[^"]*"/g, '"…"')}`);
+    for (const c of live.clients) c.write(`event: log\ndata: ${JSON.stringify({ type: 'log', at: e.at, message: `voice: ${e.message}` })}\n\n`);
+    return;
+  }
+  if (e.type === 'speak') {
+    live.speech.set(e.request.id, e.request.text);
+    if (live.speech.size > 200) live.speech.delete(live.speech.keys().next().value!);
+  }
   const payload = `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`;
   for (const c of live.clients) c.write(payload);
 }
@@ -138,6 +179,7 @@ function snapshot(live: LiveSession) {
     transcript: e.state.transcript.slice(-300),
     gaps: [...e.state.gaps.values()].filter((g) => !g.speculative),
     simulating: !!live.simulation,
+    voice: { enabled: live.voice.cfg.enabled, muted: live.voice.muted, names: live.voice.cfg.names },
   };
 }
 
@@ -145,6 +187,7 @@ function deleteSession(id: string): void {
   const live = sessions.get(id);
   if (!live) return;
   clearInterval(live.timer);
+  clearInterval(live.voiceTimer);
   live.simulation?.stop();
   void live.audio?.close();
   live.built.engine.stop();
@@ -183,6 +226,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     return send(res, 200, {
       llm: llm ? { id: llm.id, webSearch } : null,
       stt: stt ? { id: stt.id } : null,
+      tts: tts ? { id: tts.id } : null,
       localDocs: localDocs.length,
       scenarios: scenarios.map((s) => ({ id: s.id, title: s.title, description: s.description, objective: s.objective, sourceUrls: s.sourceUrls ?? [] })),
     });
@@ -222,6 +266,36 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     live.source.push({ speaker: str(b.speaker, 60) || 'Room', text });
     return send(res, 202, { ok: true });
   }
+  if (method === 'POST' && sub === 'voice' && !parts[4]) {
+    const b = await readJson(req);
+    if (typeof b.enabled === 'boolean') live.voice.setEnabled(b.enabled);
+    if (typeof b.muted === 'boolean') live.voice.setMuted(b.muted);
+    return send(res, 200, { enabled: live.voice.cfg.enabled, muted: live.voice.muted });
+  }
+  if (method === 'POST' && sub === 'voice' && parts[4] === 'playback') {
+    const b = await readJson(req);
+    const status = str(b.status) as 'started' | 'finished' | 'interrupted' | 'failed';
+    if (!['started', 'finished', 'interrupted', 'failed'].includes(status)) return send(res, 400, { error: 'invalid status' });
+    live.voice.playback(str(b.id, 80), status);
+    return send(res, 204, null);
+  }
+  if (method === 'POST' && sub === 'activity') {
+    // Browser speech recognition heard someone start talking (interim result).
+    const b = await readJson(req);
+    live.voice.humanActivity(Date.now(), str(b.text, 500) || undefined);
+    return send(res, 204, null);
+  }
+  if (method === 'GET' && sub === 'voice' && parts[4] === 'audio' && parts[5]) {
+    const text = live.speech.get(parts[5]);
+    if (!text || !tts) return send(res, 404, { error: 'no server voice for this turn' });
+    try {
+      const { audio, contentType } = await tts.synthesize(text);
+      res.writeHead(200, { 'content-type': contentType, 'cache-control': 'no-store' });
+      return void res.end(audio);
+    } catch (e) {
+      return send(res, 502, { error: (e as Error).message });
+    }
+  }
   if (method === 'POST' && sub === 'ask') {
     const b = await readJson(req);
     const q = str(b.question, 500).trim();
@@ -239,7 +313,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
       broadcast(live, { type: 'log', at: Date.now(), message: 'simulation finished' });
     };
     live.simulation = sim;
-    sim.start((u) => engine.ingest(u));
+    sim.start(live.deliver);
     return send(res, 202, { ok: true, lines: sc.lines.length });
   }
   if (method === 'POST' && sub === 'gaps' && parts[4] && parts[5] === 'action') {
@@ -278,6 +352,13 @@ function report(live: LiveSession) {
   const lat = [...live.audioStats.sttLatencyMs, ...(live.audio?.sttLatencyMs ?? [])].sort((a, b) => a - b);
   return {
     ...r,
+    voice: live.voice.cfg.enabled || live.voice.spoken.length
+      ? (() => {
+          const m = live.voice.metrics;
+          const t = [...m.triggerToSpeechMs].sort((a, b) => a - b);
+          return { ...m, triggerToSpeechMs: undefined, medianTriggerToSpeechMs: t[Math.floor(t.length / 2)] ?? null, spoken: live.voice.spoken.map((s) => ({ kind: s.kind, intent: s.intent, text: s.text })) };
+        })()
+      : null,
     audio: live.audioStats.provider
       ? { provider: live.audioStats.provider, bytesReceived: live.audioStats.bytes, transcriptionLatencyMs: { n: lat.length, median: lat[Math.floor(lat.length / 2)], p90: lat[Math.floor(lat.length * 0.9)] } }
       : null,
@@ -315,6 +396,7 @@ async function attachAudio(live: LiveSession, ws: import('ws').WebSocket, url: U
     sampleRate,
     channels,
     onCaption: (c) => {
+      live.voice.humanActivity(Date.now(), c.text); // someone is talking: never talk over them
       const payload = `event: caption\ndata: ${JSON.stringify(c)}\n\n`;
       for (const client of live.clients) client.write(payload);
     },
@@ -332,7 +414,7 @@ async function attachAudio(live: LiveSession, ws: import('ws').WebSocket, url: U
   }
   live.audio = source;
   live.audioStats.provider = stt!.id;
-  source.start((u) => live.built.engine.ingest(u));
+  source.start(live.deliver);
   status('listening');
   log(`${live.session.id} audio stream open (${channels} ch @ ${sampleRate} Hz, ${stt!.id})`);
   ws.on('message', (data, isBinary) => {
@@ -356,5 +438,6 @@ server.listen(PORT, HOST, () => {
   log(`listening on http://${HOST}:${PORT}`);
   log(llm ? `LLM: ${llm.id} (conversation content is sent to Anthropic), web search: ${webSearch ? 'on' : 'off'}` : 'LLM: off — heuristic analysis + supplied sources only (set THIRDSEAT_LLM=anthropic to enable)');
   if (localDocs.length) log(`local documents loaded: ${localDocs.length}`);
+  log(tts ? `server voice: ${tts.id} (spoken text is sent to the provider)` : 'server voice: off — the browser speaks with its built-in voices when voice participation is on');
   log(stt ? `speech-to-text: ${stt.id} (meeting audio is sent to the provider)` : 'speech-to-text: off — browser speech recognition only (set THIRDSEAT_STT=deepgram to enable)');
 });

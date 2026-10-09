@@ -59,6 +59,10 @@ Design rules that matter:
 | `src/audio/stt.ts` | `SpeechToTextProvider` interface, `UtteranceAssembler` (speaker turns), generic speaker labels |
 | `src/audio/deepgram.ts` | Deepgram live streaming client (diarization, multichannel, KeepAlive/CloseStream) |
 | `src/conversation/audio-source.ts` | `AudioConversationSource`: PCM in → speech-to-text → utterances stamped with speech time; call-echo drop |
+| `src/voice/voice-agent.ts` | Voice participation: what to say, turn-taking, barge-in, cooldown, self-echo filter, addressed handling |
+| `src/voice/composer.ts` | Spoken phrasing per timing mode; speakability rules; AI-rephrasing faithfulness guard |
+| `src/voice/addressed.ts` | Detects being addressed by name; scoped intents (heuristic + AI) |
+| `src/voice/tts.ts` | `TextToSpeech` interface + Deepgram Aura server voice |
 | `src/server/main.ts` | HTTP API, SSE, static UI, session lifecycle, audio WebSocket (`/api/sessions/:id/audio`) |
 | `web/` | UI (`index.html`, `app.js`, `styles.css`), audio capture (`audio.js`, `pcm-worklet.js`) |
 | `scenarios/` | Scripted conversations (s01–s10 required scenarios; w01 whiteboard rehearsal) |
@@ -95,11 +99,13 @@ npm start                      # http://127.0.0.1:4317
 ## 5. Development commands
 
 ```bash
-npm test                       # all tests (45): deterministic, no external network
+npm test                       # all tests (59): deterministic, no external network
 npm run typecheck              # tsc --noEmit
 npm run scenario -- all --fixtures         # replay all scenarios with fixture research, print timeline
 npm run scenario -- w01 --real-sources     # rehearsal with live-fetched official docs
 npm run e2e:real               # real-retrieval proof; writes docs/evidence/e2e-real-research.json
+npm run voice:sim                     # voice participation invariants over the scored conversation
+PLAYWRIGHT_MODULE=… npm run e2e:voice  # browser proof of voice participation
 PLAYWRIGHT_MODULE=… npm run e2e:audio  # browser audio pipeline proof (room + call), needs Playwright/Chromium
 THIRDSEAT_LLM=anthropic npm run e2e:real   # same with Claude analysis/synthesis/web search
 ```
@@ -147,6 +153,8 @@ env vars. Sessions are in memory, so restarting the process loses them by design
 | `THIRDSEAT_SOURCE_RULES` | — | JSON array of `{match, tier}` source-ranking rules (prepended to defaults) |
 | `THIRDSEAT_LOG_CONTENT` | `0` | `1` lets server logs include quoted conversation text |
 | `THIRDSEAT_SESSION_TTL_HOURS` | `12` | Idle sessions are deleted after this |
+| `THIRDSEAT_TTS` | `off` | `deepgram` for a server voice (needed to route speech to a chosen output device). Otherwise the browser's built-in voices speak. |
+| `THIRDSEAT_TTS_VOICE` / `THIRDSEAT_TTS_URL` | `aura-2-thalia-en` / Deepgram cloud | Server voice model and endpoint |
 | `THIRDSEAT_PROACTIVE` | `1` | `0` disables research-at-question-time (proactive mode). With AI on, every factual question costs a web search. |
 | `THIRDSEAT_STT` | `off` | `deepgram` to enable server speech-to-text (explicit opt-in: audio leaves the machine) |
 | `DEEPGRAM_API_KEY` | — | Deepgram credentials (server-side only) |
@@ -166,6 +174,8 @@ LLM calls use effort `low` for analysis/synthesis (latency) and `medium` for "re
 6. **Rehearsal speed distorts pacing.** Cooldown is in real seconds, so at 10× speed fewer cards surface than in a real-time conversation.
 7. **SSRF surface.** The server fetches user-supplied URLs (http/https only, 2 MB cap, 15 s timeout). That is fine on localhost, but add an allowlist before any shared deployment.
 8. **No auth.** Anyone who can reach the port can read sessions or stream audio into them.
+12. **Voice into web calls needs audio routing.** The page can't inject audio into another tab's microphone. Use the server voice, pick a virtual audio device (e.g. BlackHole on macOS, VB-Cable on Windows) as ThirdSeat's output, and select it as the microphone in the meeting app. Mixing your own mic with it needs an aggregate device. A meeting-platform bot remains FUTURE.
+13. **Interruptions in practice:** in the scripted voice simulation, 4 of 9 spoken turns were cut short because the script's people don't wait. That's correct behaviour, but in real use it may mean many unfinished turns; watch the "interrupted" metric.
 9. **Real speech-to-text is unvalidated.** Accuracy, diarization and latency are untested against the real service. Deepgram's message shapes were implemented from its documented protocol and exercised only against a stand-in.
 10. **Microphone access needs a secure context.** It works on `localhost`/`127.0.0.1`. Serving over a LAN IP needs HTTPS, or the browser will refuse the microphone.
 11. **Call capture is Chrome/Edge only** (tab audio via `getDisplayMedia`), and the user must tick "Share tab audio". Desktop meeting apps (not in a browser tab) cannot be captured this way; a meeting-platform `ConversationSource` would be needed.

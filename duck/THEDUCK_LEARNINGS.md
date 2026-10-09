@@ -81,6 +81,17 @@ documented.
 - **Check card content, not just presence.** x03's conclusion card "passed" the key but listed a
   coffee-break question as a blocker. Answer keys need content assertions.
 
+## Voice participation (2026-10-09)
+
+- A constraint the human set at the start ("does not speak into the meeting") was reversed by the
+  human. **Record amendments in HUMAN_INTENT with the human's words and date**, rather than deleting
+  the old line. It keeps the boundary that survives ("only on gap points") explicit.
+- **Invariant checks beat content expectations for behaviour like turn-taking.** "Never starts over a
+  person" and "every spoken turn is a gap point" are stated once and hold for any conversation.
+- **Passing checks ≠ good speech.** All invariants passed while the spoken phrasing was clumsy
+  ("On does Google Meet's API…", mid-word truncation, internal notes read aloud). Read the actual
+  output, not just the scores.
+
 ## Suggested changes to TheDuck templates
 
 - Add an "**Environment capabilities**" section to AGENT_SPEC: credentials, network egress, runtime.

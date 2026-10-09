@@ -40,6 +40,19 @@ Last updated: 2026-10-02 (V0 build + live audio input).
 | 12l | AI mode understands natural phrasing better than the no-AI rules (x01, x03, probes) | ⛔ | Harness ready (`npm run test:ai`), with a guard that invalidates any run where AI calls fell back to the no-AI rules (verified with a bad key: 34/34 calls failed → marked INVALID). **Not run: no API key in this environment.** |
 | 12i | Proactive mode helps rather than distracts in a real conversation | ⛔ | Needs live validation; watch the proactive dismiss rate in the report's per-mode counts. |
 
+## Voice participation
+
+| # | Claim | Status | Evidence |
+|---|---|---|---|
+| V1 | Never starts speaking while a person is talking; yields when interrupted; doesn't repeat | ✅ | `tests/voice.test.ts`; `scripts/voice-simulation.ts` (speaking windows simulated from word counts: 0 overlaps); browser run: interruption → speech cancelled |
+| V2 | Speaks only gap points; silent on negative controls; UNVERIFIED answers never spoken | ✅ | voice simulation invariants (10/10); unit tests |
+| V3 | Addressed by name: source, confidence, wrong→flag, open items, research→spoken answer, out-of-scope deflection, thanks→silence, mute/unmute | ✅ | unit tests; voice simulation; browser run (`docs/evidence/e2e-voice-browser.json`) |
+| V4 | Ignores its own voice heard back | ✅ | unit test; browser run (no "Room" line created) |
+| V5 | AI rephrasing cannot introduce numbers or names absent from the source | 🟡 | Unit tests with a fake AI client; not run against the real API |
+| V6 | Server voice (Deepgram Aura) | 🟡 | Request shape tested against a local stand-in; not run against the real service |
+| V7 | Real audio: actual speech heard by people, natural-sounding, good timing in a live room or call | ⛔ | Headless browser has no audio device (speech recorded by a stub). Needs a live session. |
+| V8 | Speaking into a web call | ⛔ | Requires routing the server voice to a virtual microphone; not tested. |
+
 ## Real research (not fixtures)
 
 | # | Claim | Status | Evidence |

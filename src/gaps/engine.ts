@@ -1017,7 +1017,7 @@ export class GapEngine {
   /** A participant explicitly asks ThirdSeat to look something up (also measures detection misses). */
   ask(question: string, speaker = 'User'): Gap {
     const now = this.clock.now();
-    const u = this.ingestSilently(speaker, question);
+    const u = this.ingestSilently(`${speaker} → ThirdSeat`, question);
     const gap: Gap = {
       id: newId('gap'),
       sessionId: this.session.id,
@@ -1043,9 +1043,16 @@ export class GapEngine {
     return gap;
   }
 
+  /** ThirdSeat's own spoken turn: part of the transcript (so people's replies have context) but never analysed as a human. */
+  ingestOwn(text: string, speaker = 'ThirdSeat'): Utterance {
+    const u = this.ingestSilently(speaker, text);
+    this.emit({ type: 'utterance', utterance: u });
+    return u;
+  }
+
   private ingestSilently(speaker: string, text: string): Utterance {
     // Stored for context but not analysed (it is a request to the assistant, not conversation).
-    const u: Utterance = { id: newId('u'), sessionId: this.session.id, speaker: `${speaker} → ThirdSeat`, text, at: this.clock.now(), seq: this.seq };
+    const u: Utterance = { id: newId('u'), sessionId: this.session.id, speaker, text, at: this.clock.now(), seq: this.seq };
     this.state.addUtterance(u);
     return u;
   }
