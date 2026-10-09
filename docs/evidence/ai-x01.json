@@ -1,0 +1,206 @@
+{
+  "ranAt": "2026-10-09T21:04:34.318Z",
+  "analyzer": "llm(anthropic:claude-opus-5-5)",
+  "ai": {
+    "model": "anthropic:claude-opus-5-5",
+    "calls": 34,
+    "failures": 0,
+    "medianMs": 2225,
+    "p90Ms": 2915,
+    "firstFailure": null,
+    "valid": true
+  },
+  "passCount": 10,
+  "total": 15,
+  "rows": [
+    {
+      "id": "P1",
+      "expected": "KNOWLEDGE card, PROACTIVE, at line 3–5",
+      "actual": "KNOWLEDGE card, PROACTIVE, at line 4 (+14 s)",
+      "pass": true,
+      "why": "Question nobody answered; nobody said 'not sure'. Answer prepared in advance should appear after the grace period."
+    },
+    {
+      "id": "R1",
+      "expected": "KNOWLEDGE card, REACTIVE, at line 10–11",
+      "actual": "KNOWLEDGE card, REACTIVE, at line 10 (+5 s)",
+      "pass": true,
+      "why": "'Hmm, couldn't tell you offhand' is uncertainty (natural phrasing)."
+    },
+    {
+      "id": "P2",
+      "expected": "KNOWLEDGE card, PROACTIVE, at line 11–14",
+      "actual": "KNOWLEDGE card, PROACTIVE, at line 12 (+13 s)",
+      "pass": true,
+      "why": "Tentative claim about Meet ('probably … I think') checked unprompted."
+    },
+    {
+      "id": "P3",
+      "expected": "KNOWLEDGE card, PROACTIVE, at line 21–23",
+      "actual": "KNOWLEDGE card, PROACTIVE, at line 21 (+0 s)",
+      "pass": true,
+      "why": "Question asked to the room ('Anyone know whether…')."
+    },
+    {
+      "id": "T1",
+      "expected": "OPEN_THREAD card, RETROACTIVE, at line 31–32",
+      "actual": "OPEN_THREAD card, RETROACTIVE, at line 33 (+192 s)",
+      "pass": false,
+      "why": "Strategic question acknowledged ('Good question') and dropped; recall when they decide which to build."
+    },
+    {
+      "id": "L1",
+      "expected": "KNOWLEDGE card, RETROACTIVE, at line 31–32",
+      "actual": "KNOWLEDGE card, RETROACTIVE, at line 31 (+132 s)",
+      "pass": true,
+      "why": "Deferred question whose research is slow (released just before line 32) → framed 'Back to …'."
+    },
+    {
+      "id": "C1",
+      "expected": "DECISION card, RETROACTIVE, at line 33–33",
+      "actual": "DECISION card, RETROACTIVE, at line 31 (+-35 s)",
+      "pass": false,
+      "why": "'So where does that leave us?' with open items → list blockers."
+    },
+    {
+      "id": "N1",
+      "expected": "no card; status NATURALLY_RESOLVED",
+      "actual": "no card; KNOWLEDGE/NATURALLY_RESOLVED",
+      "pass": true,
+      "why": "Answered confidently by a human 4 s later."
+    },
+    {
+      "id": "N2",
+      "expected": "no gap, no card",
+      "actual": "no card; no gap",
+      "pass": true,
+      "why": "Rhetorical 'Makes sense, right?'."
+    },
+    {
+      "id": "N3",
+      "expected": "no gap, no card",
+      "actual": "no card; no gap",
+      "pass": true,
+      "why": "Social 'Can you see my screen?'."
+    },
+    {
+      "id": "N4",
+      "expected": "no card; status OPEN",
+      "actual": "no card; KNOWLEDGE/OPEN",
+      "pass": true,
+      "why": "Internal question (budget) — cannot be researched publicly; track quietly."
+    },
+    {
+      "id": "N5",
+      "expected": "no gap, no card",
+      "actual": "no card; OPEN_THREAD/OPEN — unexpected gap",
+      "pass": false,
+      "why": "Topic proposal 'What about the security review?'."
+    },
+    {
+      "id": "N6",
+      "expected": "no card; status UNRESOLVED",
+      "actual": "CARD SHOWN; KNOWLEDGE/RESOLVED — expected status UNRESOLVED",
+      "pass": false,
+      "why": "No source has the answer → no fabricated answer, no card."
+    },
+    {
+      "id": "N7",
+      "expected": "no card; status NATURALLY_RESOLVED; research cancelled",
+      "actual": "no card; KNOWLEDGE/NATURALLY_RESOLVED",
+      "pass": true,
+      "why": "Research still running when a human answers credibly."
+    },
+    {
+      "id": "X",
+      "expected": "no other cards",
+      "actual": "KNOWLEDGE/REACTIVE at line 25: “Does the Google Meet API expose speaker names in the live captions feed to third-party apps?”",
+      "pass": false,
+      "why": "Precision: anything not in the key is a false positive."
+    }
+  ],
+  "cards": [
+    {
+      "line": 4,
+      "type": "KNOWLEDGE",
+      "mode": "PROACTIVE",
+      "text": "Looked this up while you were talking: FIXTURE: Meet Media API gives apps real-time media (Developer Preview)."
+    },
+    {
+      "line": 10,
+      "type": "KNOWLEDGE",
+      "mode": "REACTIVE",
+      "text": "FIXTURE: Usage-based; per-minute pricing listed on the RTMS page. Nobody in the conversation knew this."
+    },
+    {
+      "line": 12,
+      "type": "KNOWLEDGE",
+      "mode": "PROACTIVE",
+      "text": "Looked this up while you were talking: FIXTURE: No documented 100-participant cap for add-ons."
+    },
+    {
+      "line": 21,
+      "type": "KNOWLEDGE",
+      "mode": "PROACTIVE",
+      "text": "You asked the room — here's what I found: FIXTURE: Meet add-ons are desktop-only."
+    },
+    {
+      "line": 25,
+      "type": "KNOWLEDGE",
+      "mode": "REACTIVE",
+      "text": "FIXTURE: Meet Media API gives apps real-time media (Developer Preview). Nobody in the conversation knew this."
+    },
+    {
+      "line": 31,
+      "type": "DECISION",
+      "mode": "RETROACTIVE",
+      "text": "You appear close to a conclusion. Based on the objective, these are still unresolved:\n1. Why would a team pay for our product when Zoom's AI Companion is already included in Zoom?\n2. Do we have budget for a contractor this quarter?\n3. Is Zoom's Real-Time Media Streams (RTMS) feature generally available or still in beta?\n4. What security review requirements apply, and how do they affect choosing Zoom or Google Meet?\n6 other question(s) raised were answered during the session."
+    },
+    {
+      "line": 31,
+      "type": "KNOWLEDGE",
+      "mode": "RETROACTIVE",
+      "text": "Back to “Is Zoom's Real-Time Media Streams (RTMS) feature generally available or still in beta?” (raised 2 min ago): FIXTURE: RTMS is generally available."
+    },
+    {
+      "line": 33,
+      "type": "OPEN_THREAD",
+      "mode": "RETROACTIVE",
+      "text": "Earlier (3 min ago) you raised: “Why would a team pay for our product when Zoom's AI Companion is already included in Zoom?” It is still unresolved and looks relevant to the objective, and you're now making decisions that may depend on it."
+    }
+  ],
+  "researchCalls": [
+    {
+      "key": "meet-captions",
+      "query": "Does the Google Meet API give third-party apps access to live captions during a call?"
+    },
+    {
+      "key": "zoom-oauth",
+      "query": "Does Zoom support OAuth for Zoom Marketplace apps?"
+    },
+    {
+      "key": "zoom-price",
+      "query": "What is the per-minute price of Zoom's real-time media streams (RTMS)?"
+    },
+    {
+      "key": "meet-participants",
+      "query": "Do Google Meet add-ons have a participant cap of 100?"
+    },
+    {
+      "key": "zoom-beta",
+      "query": "Is Zoom's Real-Time Media Streams (RTMS) feature generally available or still in beta?"
+    },
+    {
+      "key": "meet-mobile",
+      "query": "Do Google Meet add-ons work in the Google Meet mobile app?"
+    },
+    {
+      "key": "meet-captions",
+      "query": "Does the Google Meet API expose speaker names in the live captions feed to third-party apps?"
+    },
+    {
+      "key": "zoom-s3",
+      "query": "Does Zoom allow third-party apps to store meeting recordings in their own S3 bucket?"
+    }
+  ]
+}
